@@ -10,7 +10,7 @@ import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import TransactionCard from './TransactionCard'
 import UploadModal from './UploadModal'
-import { uploadAndSubmit } from './api'
+import { uploadAndSubmit, waitForCase } from './api'
 import {
   FINDINGS,
   SAMPLE_DOCUMENTS,
@@ -160,6 +160,37 @@ export default function Workspace() {
               in the {submission.data_region.toUpperCase()} region.
             </p>
           ),
+        })
+        const completed = await waitForCase(caseId, (state) => {
+          if (state === 'NORMALIZED') setPageSubtitle('Document extraction is complete. Preparing validation checks.')
+          if (state === 'PLANNED') setPageSubtitle('Validation checks are planned and ready to run.')
+          if (state === 'SUITES_RUNNING') setPageSubtitle('Validation checks are running.')
+        })
+        const aggregate = completed.result.results
+        const violationCount = Number(aggregate?.violation_count || 0)
+        const shipmentScore = Math.round(Number(aggregate?.shipment_score ?? 100))
+        const criticalCount = Number(aggregate?.severity_counts?.critical || 0)
+        setDocuments((prev) =>
+          prev.map((doc, i) =>
+            i >= startIndex
+              ? { ...doc, status: violationCount ? 'issue' as const : 'verified' as const, confidence: shipmentScore }
+              : doc,
+          ),
+        )
+        setConfidence(shipmentScore)
+        setCriticalTotal(criticalCount)
+        setPreliminary(false)
+        setPageTitle(violationCount ? 'Review shipment verification' : 'Shipment verification complete')
+        setPageSubtitle(
+          violationCount
+            ? `${violationCount} discrepancy${violationCount === 1 ? '' : 'ies'} found. Review the results before release.`
+            : 'Verification completed with no discrepancies.',
+        )
+        setShowSuggestions(violationCount > 0)
+        toast(`Verification complete - ${violationCount} finding${violationCount === 1 ? '' : 's'}`)
+        say({
+          role: 'assistant',
+          body: <p>Verification is complete with {violationCount} finding{violationCount === 1 ? '' : 's'} and a score of {shipmentScore}%.</p>,
         })
       } catch (error) {
         setDocuments((prev) =>

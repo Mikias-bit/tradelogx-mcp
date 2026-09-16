@@ -16,6 +16,27 @@ export interface SubmissionResponse {
   result: { case_id: string; [key: string]: unknown }
 }
 
+export type CaseState = 'SUBMITTED' | 'NORMALIZED' | 'PLANNED' | 'SUITES_RUNNING' | 'COMPLETE'
+
+export interface ValidationAggregate {
+  violation_count?: number
+  shipment_score?: number
+  severity_counts?: Record<string, number>
+  violations?: Array<Record<string, unknown>>
+  [key: string]: unknown
+}
+
+export interface CaseStatusResponse {
+  tenant_id: string
+  data_region: 'eu' | 'us'
+  result: {
+    case_id: string
+    state: CaseState
+    status: Record<string, unknown>
+    results?: ValidationAggregate
+  }
+}
+
 const DOCUMENT_ROLES: Readonly<Record<string, string>> = {
   'Commercial Invoice': 'commercial_invoice',
   'Bill of Lading': 'bill_of_lading',
@@ -96,5 +117,42 @@ export async function uploadAndSubmit(
       })
     })() }),
   })
-  return responseJson<SubmissionResponse>(submitResponse)
+  const submission = await responseJson<SubmissionResponse>(submitResponse)
+  const orchestrationResponse = await fetch('/.netlify/functions/orchestrate-case-background', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ case_id: submission.result.case_id }),
+  })
+  if (!orchestrationResponse.ok) {
+    const body = await orchestrationResponse.json().catch(() => ({})) as { error?: string }
+    throw new Error(body.error || `Unable to start verification (${orchestrationResponse.status})`)
+  }
+  return submission
+}
+
+export async function getCaseStatus(caseId: string): Promise<CaseStatusResponse> {
+  const response = await fetch(
+    `/.netlify/functions/case-status?case_id=${encodeURIComponent(caseId)}`,
+    { headers: { Accept: 'application/json' }, cache: 'no-store' },
+  )
+  return responseJson<CaseStatusResponse>(response)
+}
+
+export async function waitForCase(
+  caseId: string,
+  onState?: (state: CaseState) => void,
+  options: { intervalMs?: number; timeoutMs?: number } = {},
+): Promise<CaseStatusResponse> {
+  const intervalMs = options.intervalMs ?? 3000
+  const timeoutMs = options.timeoutMs ?? 15 * 60 * 1000
+  const deadline = Date.now() + timeoutMs
+  while (true) {
+    const response = await getCaseStatus(caseId)
+    onState?.(response.result.state)
+    if (response.result.state === 'COMPLETE') return response
+    if (Date.now() >= deadline) {
+      throw new Error(`Verification for case ${caseId} is still running; check it again later`)
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, intervalMs))
+  }
 }
