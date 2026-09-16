@@ -1,3 +1,5 @@
+import { refreshSession } from '@netlify/identity'
+
 export interface UploadCandidate {
   filename: string
   size: number
@@ -69,8 +71,17 @@ function contentType(file: File): string {
 
 async function responseJson<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => ({})) as { error?: string }
+  if (response.status === 401) {
+    window.dispatchEvent(new Event('tradelogx:auth-required'))
+    throw new Error('Your session expired. Please sign in again.')
+  }
   if (!response.ok) throw new Error(body.error || `Request failed (${response.status})`)
   return body as T
+}
+
+async function authenticatedFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+  await refreshSession()
+  return fetch(input, { ...init, credentials: 'same-origin' })
 }
 
 export async function uploadAndSubmit(
@@ -78,7 +89,7 @@ export async function uploadAndSubmit(
   documentTypes: ReadonlyArray<string>,
 ): Promise<SubmissionResponse> {
   const roles = documentTypes.map(documentRole)
-  const setupResponse = await fetch('/.netlify/functions/create-upload-urls', {
+  const setupResponse = await authenticatedFetch('/.netlify/functions/create-upload-urls', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ files: files.map((file, index) => ({
@@ -99,7 +110,7 @@ export async function uploadAndSubmit(
     if (!response.ok) throw new Error(`Upload failed for ${upload.filename} (${response.status})`)
   }))
 
-  const submitResponse = await fetch('/.netlify/functions/submit-case', {
+  const submitResponse = await authenticatedFetch('/.netlify/functions/submit-case', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ documents: (() => {
@@ -118,7 +129,7 @@ export async function uploadAndSubmit(
     })() }),
   })
   const submission = await responseJson<SubmissionResponse>(submitResponse)
-  const orchestrationResponse = await fetch('/.netlify/functions/orchestrate-case-background', {
+  const orchestrationResponse = await authenticatedFetch('/.netlify/functions/orchestrate-case-background', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ case_id: submission.result.case_id }),
@@ -131,7 +142,7 @@ export async function uploadAndSubmit(
 }
 
 export async function getCaseStatus(caseId: string): Promise<CaseStatusResponse> {
-  const response = await fetch(
+  const response = await authenticatedFetch(
     `/.netlify/functions/case-status?case_id=${encodeURIComponent(caseId)}`,
     { headers: { Accept: 'application/json' }, cache: 'no-store' },
   )

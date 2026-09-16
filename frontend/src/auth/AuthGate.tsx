@@ -27,6 +27,12 @@ export default function AuthGate({ children }: { children: ReactNode }) {
     return () => { active = false }
   }, [])
 
+  useEffect(() => {
+    const requireLogin = () => setUser(null)
+    window.addEventListener('tradelogx:auth-required', requireLogin)
+    return () => window.removeEventListener('tradelogx:auth-required', requireLogin)
+  }, [])
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setBusy(true)

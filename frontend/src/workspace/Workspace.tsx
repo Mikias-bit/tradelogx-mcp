@@ -25,6 +25,30 @@ import type { ThreadMessage } from './messages'
 const BUILD_TITLE = 'Build a verified trade file'
 const BUILD_SUBTITLE =
   'Add your shipment documents. Tradelogx will organize the file, reconcile key facts, and explain every discrepancy.'
+const ACTIVE_CASE_STORAGE_KEY = 'tradelogx.active-case.v1'
+
+interface SavedCaseView {
+  documents: Array<TradeDocument>
+  transactionLabel: string
+  pageTitle: string
+  pageSubtitle: string
+  confidence: number
+  criticalTotal: number
+  preliminary: boolean
+}
+
+function readSavedCase(): SavedCaseView | null {
+  try {
+    const value = window.localStorage.getItem(ACTIVE_CASE_STORAGE_KEY)
+    return value ? JSON.parse(value) as SavedCaseView : null
+  } catch {
+    return null
+  }
+}
+
+function persistCase(view: SavedCaseView) {
+  window.localStorage.setItem(ACTIVE_CASE_STORAGE_KEY, JSON.stringify(view))
+}
 
 const TABS: ReadonlyArray<[TabId, string]> = [
   ['overview', 'Overview'],
@@ -54,6 +78,8 @@ export default function Workspace() {
   const [evidenceOpen, setEvidenceOpen] = useState(false)
   const [toastText, setToastText] = useState('')
   const [toastShown, setToastShown] = useState(false)
+  const [savedCase, setSavedCase] = useState<SavedCaseView | null>(() => readSavedCase())
+  const [showingSample, setShowingSample] = useState(false)
 
   const messageId = useRef(0)
   const nextId = () => ++messageId.current
@@ -95,6 +121,33 @@ export default function Workspace() {
 
   const fileInput = useRef<HTMLInputElement>(null)
 
+  const restoreSavedCase = useCallback(() => {
+    if (!savedCase) return
+    setDocuments(savedCase.documents.map((document) => ({ ...document })))
+    setTransactionLabel(savedCase.transactionLabel)
+    setPageTitle(savedCase.pageTitle)
+    setPageSubtitle(savedCase.pageSubtitle)
+    setConfidence(savedCase.confidence)
+    setCriticalTotal(savedCase.criticalTotal)
+    setPreliminary(savedCase.preliminary)
+    setShowingSample(false)
+    setActiveTab('overview')
+    toast('Active verification restored')
+  }, [savedCase, toast])
+
+  useEffect(() => {
+    if (!savedCase) return
+    setDocuments(savedCase.documents.map((document) => ({ ...document })))
+    setTransactionLabel(savedCase.transactionLabel)
+    setPageTitle(savedCase.pageTitle)
+    setPageSubtitle(savedCase.pageSubtitle)
+    setConfidence(savedCase.confidence)
+    setCriticalTotal(savedCase.criticalTotal)
+    setPreliminary(savedCase.preliminary)
+  // This restores persisted case state only on initial mount.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const loadSample = useCallback(() => {
     setDocuments(SAMPLE_DOCUMENTS.map((d) => ({ ...d })))
     setTransactionLabel('TX-2026-0914')
@@ -107,6 +160,7 @@ export default function Workspace() {
     setPreliminary(false)
     setActiveTab('overview')
     setShowSuggestions(true)
+    setShowingSample(true)
     say(copy.SAMPLE_VERIFIED)
     toast('Sample shipment loaded · 46 checks complete')
   }, [say, toast])
@@ -141,6 +195,7 @@ export default function Workspace() {
         'Documents are organized by type. Add related files to unlock cross-document reconciliation.',
       )
       setActiveTab('overview')
+      setShowingSample(false)
       say(copy.received(added.length, added.map((d) => d.type)))
       toast(`${added.length} document${added.length > 1 ? 's' : ''} selected - uploading securely`)
 
@@ -151,6 +206,17 @@ export default function Workspace() {
         setPageSubtitle(
           `Documents were uploaded to the ${submission.data_region.toUpperCase()} region and verification is running.`,
         )
+        const processingView: SavedCaseView = {
+          documents: added.map((document) => ({ ...document })),
+          transactionLabel: caseId ? `Case ${caseId.slice(0, 8)}` : 'Verification queued',
+          pageTitle: 'Verify uploaded trade file',
+          pageSubtitle: `Documents were uploaded to the ${submission.data_region.toUpperCase()} region and verification is running.`,
+          confidence: 92,
+          criticalTotal: 0,
+          preliminary: true,
+        }
+        setSavedCase(processingView)
+        persistCase(processingView)
         toast('Upload complete - verification queued')
         say({
           role: 'assistant',
@@ -187,6 +253,23 @@ export default function Workspace() {
             : 'Verification completed with no discrepancies.',
         )
         setShowSuggestions(violationCount > 0)
+        const completedView: SavedCaseView = {
+          documents: added.map((document) => ({
+            ...document,
+            status: violationCount ? 'issue' as const : 'verified' as const,
+            confidence: shipmentScore,
+          })),
+          transactionLabel: caseId ? `Case ${caseId.slice(0, 8)}` : 'Verification complete',
+          pageTitle: violationCount ? 'Review shipment verification' : 'Shipment verification complete',
+          pageSubtitle: violationCount
+            ? `${violationCount} discrepancy${violationCount === 1 ? '' : 'ies'} found. Review the results before release.`
+            : 'Verification completed with no discrepancies.',
+          confidence: shipmentScore,
+          criticalTotal: criticalCount,
+          preliminary: false,
+        }
+        setSavedCase(completedView)
+        persistCase(completedView)
         toast(`Verification complete - ${violationCount} finding${violationCount === 1 ? '' : 's'}`)
         say({
           role: 'assistant',
@@ -292,7 +375,10 @@ export default function Workspace() {
                   <p>{pageSubtitle}</p>
                 </div>
                 <div className="actions">
-                  <button className="secondary" onClick={loadSample}>
+                  <button
+                    className="secondary"
+                    onClick={showingSample && savedCase ? restoreSavedCase : loadSample}
+                  >
                     <svg viewBox="0 0 20 20">
                       <path
                         d="M4 3h9l3 3v11H4V3Zm8 0v4h4M7 10h6M7 13h6"
@@ -301,7 +387,7 @@ export default function Workspace() {
                         strokeWidth="1.5"
                       />
                     </svg>
-                    Load sample file
+                    {showingSample && savedCase ? 'Return to active case' : 'Load sample file'}
                   </button>
                   <button className="primary" onClick={openUpload}>
                     ＋ Add documents
