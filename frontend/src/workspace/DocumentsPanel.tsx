@@ -45,10 +45,16 @@ export default function DocumentsPanel({ documents, onAdd }: DocumentsPanelProps
             </span>
             <span>{doc.type}</span>
             <span>
-              <i className="extraction-bar">
-                <i style={{ width: `${doc.confidence}%` }} />
-              </i>
-              {doc.confidence}%
+              {doc.status === 'processing' ? (
+                'Extracting…'
+              ) : (
+                <>
+                  <i className="extraction-bar">
+                    <i style={{ width: `${doc.confidence}%` }} />
+                  </i>
+                  {doc.confidence}%
+                </>
+              )}
             </span>
             <span className={`doc-tag ${statusClass(doc.status)}`}>{statusLabel(doc.status)}</span>
             <button className="more-button">•••</button>

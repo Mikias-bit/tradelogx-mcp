@@ -19,6 +19,16 @@ export interface TradeDocument {
   size: string
 }
 
+export function dedupeDocuments(documents: ReadonlyArray<TradeDocument>): Array<TradeDocument> {
+  const seen = new Set<string>()
+  return documents.filter((document) => {
+    const key = `${document.name.toLowerCase()}|${document.size}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 export interface Finding {
   severity: Severity
   category: string

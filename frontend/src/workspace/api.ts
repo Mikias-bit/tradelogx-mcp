@@ -25,6 +25,11 @@ export interface ValidationAggregate {
   shipment_score?: number
   severity_counts?: Record<string, number>
   violations?: Array<Record<string, unknown>>
+  documents?: Record<string, {
+    score?: number
+    violation_count?: number
+    [key: string]: unknown
+  }>
   [key: string]: unknown
 }
 
@@ -51,7 +56,7 @@ const DOCUMENT_ROLES: Readonly<Record<string, string>> = {
   'Fumigation Certificate': 'fumigation_certificate',
 }
 
-function documentRole(label: string): string {
+export function documentRole(label: string): string {
   const role = DOCUMENT_ROLES[label]
   if (!role) {
     throw new Error(`Choose a supported document type for ${label}; this backend cannot auto-detect it yet`)

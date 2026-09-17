@@ -10,12 +10,13 @@ import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import TransactionCard from './TransactionCard'
 import UploadModal from './UploadModal'
-import { uploadAndSubmit, waitForCase } from './api'
+import { documentRole, uploadAndSubmit, waitForCase } from './api'
 import {
   FINDINGS,
   SAMPLE_DOCUMENTS,
   type TabId,
   type TradeDocument,
+  dedupeDocuments,
   formatSize,
   inferType,
 } from './data'
@@ -40,7 +41,14 @@ interface SavedCaseView {
 function readSavedCase(): SavedCaseView | null {
   try {
     const value = window.localStorage.getItem(ACTIVE_CASE_STORAGE_KEY)
-    return value ? JSON.parse(value) as SavedCaseView : null
+    if (!value) return null
+    const parsed = JSON.parse(value) as SavedCaseView
+    parsed.documents = dedupeDocuments(parsed.documents).map((document) =>
+      document.confidence === 0 && document.status === 'issue'
+        ? { ...document, status: 'processing' as const }
+        : document,
+    )
+    return parsed
   } catch {
     return null
   }
@@ -170,7 +178,13 @@ export default function Workspace() {
       if (!files.length) return
       setUploadOpen(false)
 
-      const selectedFiles = Array.from(files)
+      const selectedFiles = Array.from(files).filter((file, index, all) =>
+        all.findIndex((candidate) =>
+          candidate.name.toLowerCase() === file.name.toLowerCase()
+          && candidate.size === file.size
+          && candidate.lastModified === file.lastModified
+        ) === index,
+      )
       const documentTypes = selectedFiles.map((file) =>
         selectedType === 'Auto-detect' ? inferType(file.name) : selectedType,
       )
@@ -178,16 +192,15 @@ export default function Workspace() {
         name: file.name,
         type: documentTypes[index],
         pages: 1,
-        confidence: 92,
+        confidence: 0,
         status: 'processing',
         size: formatSize(file.size),
       }))
 
-      let startIndex = 0
-      setDocuments((prev) => {
-        startIndex = prev.length
-        return [...prev, ...added]
-      })
+      // Each upload creates a new backend case, so its document list replaces
+      // the previous case instead of being appended to stale UI rows.
+      const startIndex = 0
+      setDocuments(added)
 
       setTransactionLabel('Draft verification')
       setPageTitle('Verify uploaded trade file')
@@ -213,7 +226,7 @@ export default function Workspace() {
           transactionLabel: caseId ? `Case ${caseId.slice(0, 8)}` : 'Verification queued',
           pageTitle: 'Verify uploaded trade file',
           pageSubtitle: `Documents were uploaded to the ${submission.data_region.toUpperCase()} region and verification is running.`,
-          confidence: 92,
+          confidence: 0,
           criticalTotal: 0,
           preliminary: true,
         }
@@ -238,13 +251,25 @@ export default function Workspace() {
         const violationCount = Number(aggregate?.violation_count || 0)
         const shipmentScore = Math.round(Number(aggregate?.shipment_score ?? 100))
         const criticalCount = Number(aggregate?.severity_counts?.critical || 0)
-        setDocuments((prev) =>
-          prev.map((doc, i) =>
-            i >= startIndex
-              ? { ...doc, status: violationCount ? 'issue' as const : 'verified' as const, confidence: shipmentScore }
-              : doc,
-          ),
-        )
+        const documentResults = aggregate?.documents || {}
+        const roleOccurrences = new Map<string, number>()
+        const completedDocuments = added.map((document) => {
+          const role = documentRole(document.type)
+          const occurrence = (roleOccurrences.get(role) || 0) + 1
+          roleOccurrences.set(role, occurrence)
+          const documentKey = occurrence === 1 ? role : `${role}_${occurrence}`
+          const result = documentResults[documentKey]
+          const documentScore = Math.round(Number(result?.score ?? 100))
+          const documentViolations = Number(result?.violation_count || 0)
+          return {
+            ...document,
+            status: documentViolations > 0 ? 'issue' as const : 'verified' as const,
+            confidence: documentScore,
+          }
+        })
+        setDocuments((prev) => prev.map((doc, i) =>
+          i >= startIndex ? completedDocuments[i - startIndex] || doc : doc,
+        ))
         setConfidence(shipmentScore)
         setCriticalTotal(criticalCount)
         setPreliminary(false)
@@ -256,11 +281,7 @@ export default function Workspace() {
         )
         setShowSuggestions(violationCount > 0)
         const completedView: SavedCaseView = {
-          documents: added.map((document) => ({
-            ...document,
-            status: violationCount ? 'issue' as const : 'verified' as const,
-            confidence: shipmentScore,
-          })),
+          documents: completedDocuments,
           transactionLabel: caseId ? `Case ${caseId.slice(0, 8)}` : 'Verification complete',
           pageTitle: violationCount ? 'Review shipment verification' : 'Shipment verification complete',
           pageSubtitle: violationCount
@@ -301,7 +322,10 @@ export default function Workspace() {
     [selectedType, say, toast],
   )
 
-  const openUpload = useCallback(() => setUploadOpen(true), [])
+  const openUpload = useCallback(() => {
+    setSelectedType('Auto-detect')
+    setUploadOpen(true)
+  }, [])
 
   const newCheck = useCallback(() => {
     if (documents.length) {
