@@ -199,9 +199,11 @@ export default function Workspace() {
       say(copy.received(added.length, added.map((d) => d.type)))
       toast(`${added.length} document${added.length > 1 ? 's' : ''} selected - uploading securely`)
 
+      let submittedCaseId = ''
       try {
         const submission = await uploadAndSubmit(selectedFiles, documentTypes)
         const caseId = submission.result.case_id
+        submittedCaseId = caseId
         setTransactionLabel(caseId ? `Case ${caseId.slice(0, 8)}` : 'Verification queued')
         setPageSubtitle(
           `Documents were uploaded to the ${submission.data_region.toUpperCase()} region and verification is running.`,
@@ -276,17 +278,24 @@ export default function Workspace() {
           body: <p>Verification is complete with {violationCount} finding{violationCount === 1 ? '' : 's'} and a score of {shipmentScore}%.</p>,
         })
       } catch (error) {
-        setDocuments((prev) =>
-          prev.map((doc, i) =>
-            i >= startIndex ? { ...doc, status: 'issue' as const, confidence: 0 } : doc,
-          ),
-        )
-        setConfidence(0)
-        setCriticalTotal(1)
-        setPreliminary(true)
         const message = error instanceof Error ? error.message : 'Upload failed'
+        if (!submittedCaseId) {
+          setDocuments((prev) =>
+            prev.map((doc, i) =>
+              i >= startIndex ? { ...doc, status: 'issue' as const, confidence: 0 } : doc,
+            ),
+          )
+          setConfidence(0)
+          setCriticalTotal(1)
+          setPreliminary(true)
+        }
         toast(message)
-        say({ role: 'assistant', body: <p>I could not submit these documents: {message}</p> })
+        say({
+          role: 'assistant',
+          body: submittedCaseId
+            ? <p>Case {submittedCaseId} was created, but live status stopped: {message}</p>
+            : <p>I could not submit these documents: {message}</p>,
+        })
       }
     },
     [selectedType, say, toast],
@@ -400,11 +409,23 @@ export default function Workspace() {
               ) : (
                 <div className="loaded-state">
                   <TransactionCard
-                    txId="TX-2026-0914"
-                    title="Copper cathodes · Shanghai → Rotterdam"
-                    meta="CIF Rotterdam · 100 MT · USD 927,350 · ETA 28 Sep 2026"
+                    txId={showingSample ? 'TX-2026-0914' : transactionLabel}
+                    title={showingSample
+                      ? 'Copper cathodes · Shanghai → Rotterdam'
+                      : `${documents.length} uploaded trade document${documents.length === 1 ? '' : 's'}`}
+                    meta={showingSample
+                      ? 'CIF Rotterdam · 100 MT · USD 927,350 · ETA 28 Sep 2026'
+                      : Array.from(new Set(documents.map((document) => document.type))).join(' · ')}
                     confidence={confidence}
                     acknowledged={acknowledged}
+                    isSample={showingSample}
+                    statusLabel={showingSample
+                      ? undefined
+                      : preliminary
+                        ? 'Processing'
+                        : criticalTotal > 0
+                          ? 'Review needed'
+                          : 'Verified'}
                   />
 
                   <div className="tabs" role="tablist">

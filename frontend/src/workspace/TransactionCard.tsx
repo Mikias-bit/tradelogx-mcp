@@ -4,6 +4,8 @@ interface TransactionCardProps {
   meta: string
   confidence: number
   acknowledged: boolean
+  isSample?: boolean
+  statusLabel?: string
 }
 
 export default function TransactionCard({
@@ -12,22 +14,20 @@ export default function TransactionCard({
   meta,
   confidence,
   acknowledged,
+  isSample = false,
+  statusLabel,
 }: TransactionCardProps) {
   return (
     <div className="transaction-card">
       <div className="transaction-main">
         <div className="route-icon">
-          CN
-          <br />
-          <span>→</span>
-          <br />
-          NL
+          {isSample ? <><span>CN</span><br /><span>→</span><br /><span>NL</span></> : <><span>TRADE</span><br /><span>✓</span><br /><span>FILE</span></>}
         </div>
         <div>
           <div className="meta-line">
             <span>{txId}</span>
             <span className={`status-pill ${acknowledged ? 'complete' : 'reviewing'}`}>
-              {acknowledged ? 'Acknowledged' : 'Review needed'}
+              {statusLabel || (acknowledged ? 'Acknowledged' : 'Review needed')}
             </span>
           </div>
           <h2>{title}</h2>
