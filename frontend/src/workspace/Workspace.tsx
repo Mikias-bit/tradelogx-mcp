@@ -38,6 +38,11 @@ interface SavedCaseView {
   preliminary: boolean
 }
 
+interface StagedFile {
+  file: File
+  documentType: string
+}
+
 function readSavedCase(): SavedCaseView | null {
   try {
     const value = window.localStorage.getItem(ACTIVE_CASE_STORAGE_KEY)
@@ -88,6 +93,7 @@ export default function Workspace() {
   const [toastShown, setToastShown] = useState(false)
   const [savedCase, setSavedCase] = useState<SavedCaseView | null>(() => readSavedCase())
   const [showingSample, setShowingSample] = useState(false)
+  const [stagedFiles, setStagedFiles] = useState<Array<StagedFile>>([])
 
   const messageId = useRef(0)
   const nextId = () => ++messageId.current
@@ -174,7 +180,7 @@ export default function Workspace() {
   }, [say, toast])
 
   const processFiles = useCallback(
-    async (files: FileList) => {
+    async (files: ReadonlyArray<File>, stagedTypes?: ReadonlyArray<string>) => {
       if (!files.length) return
       setUploadOpen(false)
 
@@ -185,9 +191,11 @@ export default function Workspace() {
           && candidate.lastModified === file.lastModified
         ) === index,
       )
-      const documentTypes = selectedFiles.map((file) =>
-        selectedType === 'Auto-detect' ? inferType(file.name) : selectedType,
-      )
+      const documentTypes = stagedTypes
+        ? Array.from(stagedTypes)
+        : selectedFiles.map((file) =>
+            selectedType === 'Auto-detect' ? inferType(file.name) : selectedType,
+          )
       const added: Array<TradeDocument> = selectedFiles.map((file, index) => ({
         name: file.name,
         type: documentTypes[index],
@@ -215,6 +223,7 @@ export default function Workspace() {
       let submittedCaseId = ''
       try {
         const submission = await uploadAndSubmit(selectedFiles, documentTypes)
+        setStagedFiles([])
         const caseId = submission.result.case_id
         submittedCaseId = caseId
         setTransactionLabel(caseId ? `Case ${caseId.slice(0, 8)}` : 'Verification queued')
@@ -322,6 +331,48 @@ export default function Workspace() {
     [selectedType, say, toast],
   )
 
+  const stageFiles = useCallback((files: FileList) => {
+    const selected = Array.from(files).map((file) => ({
+      file,
+      documentType: selectedType === 'Auto-detect' ? inferType(file.name) : selectedType,
+    }))
+    setStagedFiles((previous) => {
+      const combined = [...previous]
+      for (const candidate of selected) {
+        const duplicate = combined.some(({ file }) =>
+          file.name.toLowerCase() === candidate.file.name.toLowerCase()
+          && file.size === candidate.file.size
+          && file.lastModified === candidate.file.lastModified,
+        )
+        if (!duplicate) combined.push(candidate)
+      }
+      setDocuments(combined.map(({ file, documentType }) => ({
+        name: file.name,
+        type: documentType,
+        pages: 1,
+        confidence: 0,
+        status: 'processing' as const,
+        size: formatSize(file.size),
+      })))
+      setTransactionLabel('Draft verification')
+      setPageTitle('Build this verification case')
+      setPageSubtitle('Add every related document, then start verification to process them as one case.')
+      setShowingSample(false)
+      setActiveTab('documents')
+      toast(`${combined.length} document${combined.length === 1 ? '' : 's'} ready for this case`)
+      return combined
+    })
+    setUploadOpen(false)
+  }, [selectedType, toast])
+
+  const submitStagedFiles = useCallback(() => {
+    if (!stagedFiles.length) return
+    void processFiles(
+      stagedFiles.map(({ file }) => file),
+      stagedFiles.map(({ documentType }) => documentType),
+    )
+  }, [processFiles, stagedFiles])
+
   const openUpload = useCallback(() => {
     setSelectedType('Auto-detect')
     setUploadOpen(true)
@@ -330,6 +381,9 @@ export default function Workspace() {
   const newCheck = useCallback(() => {
     if (documents.length) {
       setDocuments([])
+      setStagedFiles([])
+      setSavedCase(null)
+      window.localStorage.removeItem(ACTIVE_CASE_STORAGE_KEY)
       setPageTitle(BUILD_TITLE)
       setPageSubtitle(BUILD_SUBTITLE)
       toast('New verification ready')
@@ -425,11 +479,16 @@ export default function Workspace() {
                   <button className="primary" onClick={openUpload}>
                     ＋ Add documents
                   </button>
+                  {stagedFiles.length ? (
+                    <button className="primary" onClick={submitStagedFiles}>
+                      Start verification ({stagedFiles.length})
+                    </button>
+                  ) : null}
                 </div>
               </div>
 
               {!loaded ? (
-                <EmptyDrop onChooseFiles={openUpload} onDropFiles={processFiles} />
+                <EmptyDrop onChooseFiles={openUpload} onDropFiles={stageFiles} />
               ) : (
                 <div className="loaded-state">
                   <TransactionCard
@@ -542,7 +601,7 @@ export default function Workspace() {
         accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx,.xls"
         hidden
         onChange={(event) => {
-          if (event.target.files) processFiles(event.target.files)
+          if (event.target.files) stageFiles(event.target.files)
           event.target.value = ''
         }}
       />
