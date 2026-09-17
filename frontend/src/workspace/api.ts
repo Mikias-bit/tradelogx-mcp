@@ -23,8 +23,17 @@ export type CaseState = 'SUBMITTED' | 'NORMALIZED' | 'PLANNED' | 'SUITES_RUNNING
 export interface ValidationAggregate {
   violation_count?: number
   shipment_score?: number
+  requested_rule_count?: number
+  evaluated_rule_count?: number
+  skipped_rule_count?: number
+  rule_suites?: Array<string>
   severity_counts?: Record<string, number>
   violations?: Array<Record<string, unknown>>
+  cross_validation?: {
+    violations?: Array<Record<string, unknown>>
+    outcomes?: Array<Record<string, unknown>>
+    [key: string]: unknown
+  }
   documents?: Record<string, {
     score?: number
     violation_count?: number

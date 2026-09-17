@@ -10,7 +10,7 @@ import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import TransactionCard from './TransactionCard'
 import UploadModal from './UploadModal'
-import { documentRole, uploadAndSubmit, waitForCase } from './api'
+import { documentRole, uploadAndSubmit, waitForCase, type ValidationAggregate } from './api'
 import {
   FINDINGS,
   SAMPLE_DOCUMENTS,
@@ -36,6 +36,7 @@ interface SavedCaseView {
   confidence: number
   criticalTotal: number
   preliminary: boolean
+  validationResult?: ValidationAggregate
 }
 
 interface StagedFile {
@@ -94,6 +95,7 @@ export default function Workspace() {
   const [savedCase, setSavedCase] = useState<SavedCaseView | null>(() => readSavedCase())
   const [showingSample, setShowingSample] = useState(false)
   const [stagedFiles, setStagedFiles] = useState<Array<StagedFile>>([])
+  const [validationResult, setValidationResult] = useState<ValidationAggregate | undefined>(savedCase?.validationResult)
 
   const messageId = useRef(0)
   const nextId = () => ++messageId.current
@@ -144,6 +146,7 @@ export default function Workspace() {
     setConfidence(savedCase.confidence)
     setCriticalTotal(savedCase.criticalTotal)
     setPreliminary(savedCase.preliminary)
+    setValidationResult(savedCase.validationResult)
     setShowingSample(false)
     setActiveTab('overview')
     toast('Active verification restored')
@@ -158,6 +161,7 @@ export default function Workspace() {
     setConfidence(savedCase.confidence)
     setCriticalTotal(savedCase.criticalTotal)
     setPreliminary(savedCase.preliminary)
+    setValidationResult(savedCase.validationResult)
   // This restores persisted case state only on initial mount.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -175,6 +179,7 @@ export default function Workspace() {
     setActiveTab('overview')
     setShowSuggestions(true)
     setShowingSample(true)
+    setValidationResult(undefined)
     say(copy.SAMPLE_VERIFIED)
     toast('Sample shipment loaded · 46 checks complete')
   }, [say, toast])
@@ -257,6 +262,7 @@ export default function Workspace() {
           if (state === 'SUITES_RUNNING') setPageSubtitle('Validation checks are running.')
         })
         const aggregate = completed.result.results
+        setValidationResult(aggregate)
         const violationCount = Number(aggregate?.violation_count || 0)
         const shipmentScore = Math.round(Number(aggregate?.shipment_score ?? 100))
         const criticalCount = Number(aggregate?.severity_counts?.critical || 0)
@@ -299,6 +305,7 @@ export default function Workspace() {
           confidence: shipmentScore,
           criticalTotal: criticalCount,
           preliminary: false,
+          validationResult: aggregate,
         }
         setSavedCase(completedView)
         persistCase(completedView)
@@ -358,6 +365,7 @@ export default function Workspace() {
       setPageTitle('Build this verification case')
       setPageSubtitle('Add every related document, then start verification to process them as one case.')
       setShowingSample(false)
+      setValidationResult(undefined)
       setActiveTab('documents')
       toast(`${combined.length} document${combined.length === 1 ? '' : 's'} ready for this case`)
       return combined
@@ -383,6 +391,7 @@ export default function Workspace() {
       setDocuments([])
       setStagedFiles([])
       setSavedCase(null)
+      setValidationResult(undefined)
       window.localStorage.removeItem(ACTIVE_CASE_STORAGE_KEY)
       setPageTitle(BUILD_TITLE)
       setPageSubtitle(BUILD_SUBTITLE)
@@ -521,7 +530,9 @@ export default function Workspace() {
                         {label}
                         {id === 'documents' ? <span>{documents.length}</span> : null}
                         {id === 'findings' ? (
-                          <span className="alert-count">{FINDINGS.length}</span>
+                          <span className="alert-count">
+                            {showingSample ? FINDINGS.length : Number(validationResult?.violation_count || 0)}
+                          </span>
                         ) : null}
                       </button>
                     ))}
@@ -532,6 +543,8 @@ export default function Workspace() {
                       documents={documents}
                       preliminary={preliminary}
                       criticalTotal={criticalTotal}
+                      isSample={showingSample}
+                      result={validationResult}
                       onOpenFindings={() => setActiveTab('findings')}
                       onFilterChecks={(filter) => {
                         setFindingFilter(filter)
@@ -551,6 +564,8 @@ export default function Workspace() {
 
                   {activeTab === 'findings' ? (
                     <FindingsPanel
+                      isSample={showingSample}
+                      violations={validationResult?.violations || []}
                       filter={findingFilter}
                       activeChip={activeChip}
                       onChangeSeverity={(severity) => {
@@ -562,7 +577,12 @@ export default function Workspace() {
                   ) : null}
 
                   {activeTab === 'audit' ? (
-                    <AuditPanel onExport={() => toast('Audit log prepared for export')} />
+                    <AuditPanel
+                      isSample={showingSample}
+                      result={validationResult}
+                      documentCount={documents.length}
+                      onExport={() => toast('Audit log prepared for export')}
+                    />
                   ) : null}
                 </div>
               )}

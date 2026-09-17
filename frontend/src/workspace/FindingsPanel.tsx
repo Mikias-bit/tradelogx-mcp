@@ -7,6 +7,8 @@ interface FindingsPanelProps {
   activeChip: string
   onChangeSeverity: (severity: string) => void
   onOpenEvidence: (title: string) => void
+  isSample: boolean
+  violations: Array<Record<string, unknown>>
 }
 
 const SEVERITY_CHIPS: ReadonlyArray<[string, string]> = [
@@ -20,8 +22,22 @@ export default function FindingsPanel({
   activeChip,
   onChangeSeverity,
   onOpenEvidence,
+  isSample,
+  violations,
 }: FindingsPanelProps) {
-  const visible = FINDINGS.filter(
+  const findings = isSample ? FINDINGS : violations.map((violation, index) => {
+    const backendSeverity = String(violation.severity || 'minor').toLowerCase()
+    const context = (violation.context || {}) as Record<string, unknown>
+    const ruleMeta = (context.rule_meta || {}) as Record<string, unknown>
+    return {
+      severity: backendSeverity === 'critical' ? 'high' : backendSeverity === 'major' ? 'medium' : 'low',
+      category: String(ruleMeta.suite || violation.scope || 'validation'),
+      title: String(violation.title || violation.message || violation.rule_id || `Finding ${index + 1}`),
+      body: String(violation.description || violation.message || 'This validation rule requires review.'),
+      sources: [violation.document_key, ruleMeta.suite].filter(Boolean).map(String),
+    }
+  })
+  const visible = findings.filter(
     (f) => filter === 'all' || f.severity === filter || f.category === filter,
   )
 
@@ -46,6 +62,7 @@ export default function FindingsPanel({
       </div>
 
       <div className="finding-list">
+        {!visible.length ? <p>No validation findings were reported for this case.</p> : null}
         {visible.map((finding, i) => (
           <article className="finding-card" data-severity={finding.severity} key={finding.title}>
             <span className={`severity ${finding.severity}`}>{finding.severity.toUpperCase()}</span>
