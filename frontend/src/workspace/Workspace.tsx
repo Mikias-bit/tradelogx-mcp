@@ -15,6 +15,7 @@ import {
   FINDINGS,
   SAMPLE_DOCUMENTS,
   type TabId,
+  type Finding,
   type TradeDocument,
   dedupeDocuments,
   formatSize,
@@ -77,7 +78,7 @@ export default function Workspace() {
   const [selectedType, setSelectedType] = useState('Auto-detect')
   const [findingFilter, setFindingFilter] = useState('all')
   const [activeChip, setActiveChip] = useState('all')
-  const [acknowledged, setAcknowledged] = useState(false)
+  const acknowledged = false
   const [confidence, setConfidence] = useState(87)
   const [criticalTotal, setCriticalTotal] = useState(1)
   const [preliminary, setPreliminary] = useState(false)
@@ -89,7 +90,7 @@ export default function Workspace() {
   const [assistantOpen, setAssistantOpen] = useState(false)
   const [fabHidden, setFabHidden] = useState(true)
   const [uploadOpen, setUploadOpen] = useState(false)
-  const [evidenceOpen, setEvidenceOpen] = useState(false)
+  const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null)
   const [toastText, setToastText] = useState('')
   const [toastShown, setToastShown] = useState(false)
   const [savedCase, setSavedCase] = useState<SavedCaseView | null>(() => readSavedCase())
@@ -128,12 +129,12 @@ export default function Workspace() {
 
   // Modals lock the page behind them, matching the original.
   useEffect(() => {
-    const locked = uploadOpen || evidenceOpen
+    const locked = uploadOpen || selectedFinding !== null
     document.body.style.overflow = locked ? 'hidden' : ''
     return () => {
       document.body.style.overflow = ''
     }
-  }, [uploadOpen, evidenceOpen])
+  }, [uploadOpen, selectedFinding])
 
   const fileInput = useRef<HTMLInputElement>(null)
 
@@ -401,13 +402,9 @@ export default function Workspace() {
     }
   }, [documents.length, openUpload, toast])
 
-  const openEvidence = useCallback(
-    (title: string) => {
-      if (title === 'Commercial value mismatch') setEvidenceOpen(true)
-      else toast('Evidence panel opened for this check')
-    },
-    [toast],
-  )
+  const openEvidence = useCallback((finding: Finding) => {
+    setSelectedFinding(finding)
+  }, [])
 
   const onPromptAction = useCallback(
     (action: 'sample' | 'required' | 'checks') => {
@@ -635,15 +632,8 @@ export default function Workspace() {
         />
       ) : null}
 
-      {evidenceOpen ? (
-        <EvidenceModal
-          onClose={() => setEvidenceOpen(false)}
-          onAcknowledge={() => {
-            setAcknowledged(true)
-            setEvidenceOpen(false)
-            toast('Finding acknowledged and added to the audit trail')
-          }}
-        />
+      {selectedFinding ? (
+        <EvidenceModal finding={selectedFinding} onClose={() => setSelectedFinding(null)} />
       ) : null}
 
       <div className={`toast${toastShown ? ' show' : ''}`} role="status">

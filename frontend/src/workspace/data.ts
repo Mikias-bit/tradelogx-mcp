@@ -30,6 +30,8 @@ export function dedupeDocuments(documents: ReadonlyArray<TradeDocument>): Array<
 }
 
 export interface Finding {
+  ruleId?: string
+  evidence?: Record<string, unknown>
   severity: Severity
   category: string
   title: string
