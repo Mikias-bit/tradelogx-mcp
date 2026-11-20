@@ -2,10 +2,11 @@ import { NAV_ITEMS } from './data'
 
 interface SidebarProps {
   open: boolean
+  activeItem: string
   onNavigate: (item: { id: string; label: string }) => void
 }
 
-export default function Sidebar({ open, onNavigate }: SidebarProps) {
+export default function Sidebar({ open, activeItem, onNavigate }: SidebarProps) {
   return (
     <aside className={`sidebar${open ? ' open' : ''}`} aria-label="Main navigation">
       <div className="brand">
@@ -32,7 +33,8 @@ export default function Sidebar({ open, onNavigate }: SidebarProps) {
         {NAV_ITEMS.map((item) => (
           <button
             key={item.id}
-            className={`nav-item${item.id === 'workspace' ? ' active' : ''}`}
+            className={`nav-item${item.id === activeItem ? ' active' : ''}`}
+            aria-current={item.id === activeItem ? 'page' : undefined}
             onClick={() => onNavigate(item)}
           >
             <span className="nav-icon">{item.glyph}</span>

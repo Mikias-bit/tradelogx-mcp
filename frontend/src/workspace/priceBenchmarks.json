@@ -1,0 +1,7 @@
+[
+  {"provider":"eia","commodity":"WTI crude oil","benchmark":"WTI","aliases":["WTI","West Texas Intermediate"],"series_id":"PET.RWTC.D","currency":"USD","unit":"BBL","location":"Cushing"},
+  {"provider":"eia","commodity":"Brent crude oil","benchmark":"Brent","aliases":["Brent"],"series_id":"PET.RBRTE.D","currency":"USD","unit":"BBL","location":"Europe"},
+  {"provider":"eia","commodity":"Henry Hub natural gas","benchmark":"Henry Hub","aliases":["Henry Hub"],"series_id":"NG.RNGWHHD.D","currency":"USD","unit":"MMBTU","location":"Henry Hub"},
+  {"provider":"twelve_data","commodity":"gold","benchmark":"Gold spot","aliases":["gold","XAU/USD"],"series_id":"XAU/USD","currency":"USD","unit":"TOZ"},
+  {"provider":"twelve_data","commodity":"silver","benchmark":"Silver spot","aliases":["silver","XAG/USD"],"series_id":"XAG/USD","currency":"USD","unit":"TOZ"}
+]

@@ -8,7 +8,7 @@
 
 export type Severity = 'high' | 'medium' | 'low'
 export type DocStatus = 'verified' | 'issue' | 'processing'
-export type TabId = 'overview' | 'documents' | 'findings' | 'audit'
+export type TabId = 'overview' | 'documents' | 'findings' | 'audit' | 'benchmarks' | 'rules'
 
 export interface TradeDocument {
   name: string

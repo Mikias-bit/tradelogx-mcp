@@ -7,6 +7,7 @@ import EvidenceModal from './EvidenceModal'
 import FindingsPanel from './FindingsPanel'
 import OverviewPanel from './OverviewPanel'
 import Sidebar from './Sidebar'
+import ReferencePanel from './ReferencePanel'
 import Topbar from './Topbar'
 import TransactionCard from './TransactionCard'
 import UploadModal from './UploadModal'
@@ -70,6 +71,8 @@ const TABS: ReadonlyArray<[TabId, string]> = [
   ['documents', 'Documents'],
   ['findings', 'Findings'],
   ['audit', 'Audit trail'],
+  ['benchmarks', 'Benchmarks'],
+  ['rules', 'Rules library'],
 ]
 
 export default function Workspace() {
@@ -441,13 +444,11 @@ export default function Workspace() {
       <div className="app-shell">
         <Sidebar
           open={sidebarOpen}
-          onNavigate={(item) =>
-            toast(
-              item.id === 'workspace'
-                ? 'Workspace is open'
-                : `${item.label} is available from the active trade file`,
-            )
-          }
+          activeItem={['documents', 'benchmarks', 'rules', 'audit'].includes(activeTab) ? activeTab : 'workspace'}
+          onNavigate={(item) => {
+            setActiveTab(item.id === 'workspace' ? 'overview' : item.id as TabId)
+            setSidebarOpen(false)
+          }}
         />
 
         <main className="main">
@@ -493,7 +494,13 @@ export default function Workspace() {
                 </div>
               </div>
 
-              {!loaded ? (
+              {!loaded && (activeTab === 'rules' || activeTab === 'benchmarks') ? (
+                <ReferencePanel mode={activeTab} result={validationResult} isSample={showingSample} onOpenEvidence={openEvidence} />
+              ) : !loaded && activeTab === 'documents' ? (
+                <DocumentsPanel documents={documents} onAdd={openUpload} />
+              ) : !loaded && activeTab === 'audit' ? (
+                <p>No active case yet. Upload documents to start an audit trail.</p>
+              ) : !loaded ? (
                 <EmptyDrop onChooseFiles={openUpload} onDropFiles={stageFiles} />
               ) : (
                 <div className="loaded-state">
@@ -534,6 +541,10 @@ export default function Workspace() {
                       </button>
                     ))}
                   </div>
+
+                  {activeTab === 'rules' || activeTab === 'benchmarks' ? (
+                    <ReferencePanel mode={activeTab} result={validationResult} isSample={showingSample} onOpenEvidence={openEvidence} />
+                  ) : null}
 
                   {activeTab === 'overview' ? (
                     <OverviewPanel

@@ -1,0 +1,2704 @@
+[
+  {
+    "id": "invoice math_mismatch",
+    "name": "invoice line item math mismatch",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_total_missing",
+    "name": "Invoice total missing",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_date_missing",
+    "name": "Invoice date missing",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_currency_invalid",
+    "name": "Invoice currency invalid",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_possible_layout_tampering",
+    "name": "invoice possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_low_confidence_fields",
+    "name": "invoice low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_normalization_warnings",
+    "name": "invoice normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_field_source_pollution",
+    "name": "invoice OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_numeric_plausibility",
+    "name": "invoice numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_suspicious_keywords",
+    "name": "invoice suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_all_line_item_financial_math",
+    "name": "Invoice all line-item financial math",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_total_components_reconcile",
+    "name": "Invoice subtotal, charges, discounts, and total reconcile",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_line_total_sum",
+    "name": "Invoice line totals sum to invoice total",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_number_not_date",
+    "name": "Invoice number is not a date",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_non_positive_amount_or_quantity",
+    "name": "Invoice non-positive amount or quantity",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "invoice_missing_trade_terms",
+    "name": "Invoice missing incoterm or payment term",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "bl_shipper_missing",
+    "name": "BL shipper missing",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_co_missing",
+    "name": "BL consignee missing",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_number_missing",
+    "name": "BL number missing",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_vessel_missing",
+    "name": "BL vessel missing",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_voyage_missing",
+    "name": "BL voyage missing",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_date_sequence",
+    "name": "BL date sequence invalid",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_possible_layout_tampering",
+    "name": "bl possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_low_confidence_fields",
+    "name": "bl low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_normalization_warnings",
+    "name": "bl normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_field_source_pollution",
+    "name": "bl OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_numeric_plausibility",
+    "name": "bl numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_suspicious_keywords",
+    "name": "bl suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_clean_or_dated_onboard_evidence",
+    "name": "BL clean-on-board or dated on-board evidence",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_issue_after_onboard_date",
+    "name": "BL issue date after shipped-on-board date",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_clean_onboard_wording",
+    "name": "BL clean on-board wording anomaly",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_route_present_distinct",
+    "name": "BL route present and distinct",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "bl_container_seal_format",
+    "name": "BL container and seal format",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl"
+    ]
+  },
+  {
+    "id": "pl_missing_net_weight",
+    "name": "PL missing net weight",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "number_of_packages_missing",
+    "name": "PL missing number of packages",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_package_type_missing",
+    "name": "PL missing package type",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_package_dimensions_missing",
+    "name": "PL missing package dimensions",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_possible_layout_tampering",
+    "name": "pl possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_low_confidence_fields",
+    "name": "pl low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_normalization_warnings",
+    "name": "pl normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_field_source_pollution",
+    "name": "pl OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_numeric_plausibility",
+    "name": "pl numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_suspicious_keywords",
+    "name": "pl suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_all_net_weights_less_than_gross",
+    "name": "Packing-list line and total net weights below gross weights",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_gross_weight_less_than_net",
+    "name": "Packing list gross/net weight sanity",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_package_count_line_sum",
+    "name": "Packing list package count line-sum match",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "pl_container_seal_format",
+    "name": "Packing list container and seal format",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "pl"
+    ]
+  },
+  {
+    "id": "coo_missing_origin",
+    "name": "COO missing origin",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coo"
+    ]
+  },
+  {
+    "id": "coo_possible_layout_tampering",
+    "name": "coo possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coo"
+    ]
+  },
+  {
+    "id": "coo_low_confidence_fields",
+    "name": "coo low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "coo"
+    ]
+  },
+  {
+    "id": "coo_normalization_warnings",
+    "name": "coo normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "coo"
+    ]
+  },
+  {
+    "id": "coo_field_source_pollution",
+    "name": "coo OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coo"
+    ]
+  },
+  {
+    "id": "coo_numeric_plausibility",
+    "name": "coo numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coo"
+    ]
+  },
+  {
+    "id": "coo_suspicious_keywords",
+    "name": "coo suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "coo"
+    ]
+  },
+  {
+    "id": "coo_required_authority_date",
+    "name": "COO origin, authority, and issue date present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coo"
+    ]
+  },
+  {
+    "id": "lc_missing_amount",
+    "name": "LC missing amount",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_missing_currency",
+    "name": "LC missing currency",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_missing_expiry_date",
+    "name": "LC missing expiry date",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_possible_layout_tampering",
+    "name": "lc possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_low_confidence_fields",
+    "name": "lc low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_normalization_warnings",
+    "name": "lc normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_field_source_pollution",
+    "name": "lc OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_numeric_plausibility",
+    "name": "lc numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_suspicious_keywords",
+    "name": "lc suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_expiry_after_shipment_window",
+    "name": "LC expiry and shipment date window",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "lc_required_document_mentions",
+    "name": "LC required document mentions parsed",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "trade_instrument_lc_screening",
+    "name": "lc authenticity, terms, and legal-effect screening",
+    "severity": "critical",
+    "suite": "trade_instruments",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "fumigation_possible_layout_tampering",
+    "name": "fumigation possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "fumigation"
+    ]
+  },
+  {
+    "id": "fumigation_low_confidence_fields",
+    "name": "fumigation low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "fumigation"
+    ]
+  },
+  {
+    "id": "fumigation_normalization_warnings",
+    "name": "fumigation normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "fumigation"
+    ]
+  },
+  {
+    "id": "fumigation_field_source_pollution",
+    "name": "fumigation OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "fumigation"
+    ]
+  },
+  {
+    "id": "fumigation_numeric_plausibility",
+    "name": "fumigation numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "fumigation"
+    ]
+  },
+  {
+    "id": "fumigation_suspicious_keywords",
+    "name": "fumigation suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "fumigation"
+    ]
+  },
+  {
+    "id": "fumigation_required_treatment_details",
+    "name": "Fumigation treatment details present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "fumigation"
+    ]
+  },
+  {
+    "id": "insurance_possible_layout_tampering",
+    "name": "insurance possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "insurance"
+    ]
+  },
+  {
+    "id": "insurance_low_confidence_fields",
+    "name": "insurance low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "insurance"
+    ]
+  },
+  {
+    "id": "insurance_normalization_warnings",
+    "name": "insurance normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "insurance"
+    ]
+  },
+  {
+    "id": "insurance_field_source_pollution",
+    "name": "insurance OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "insurance"
+    ]
+  },
+  {
+    "id": "insurance_numeric_plausibility",
+    "name": "insurance numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "insurance"
+    ]
+  },
+  {
+    "id": "insurance_suspicious_keywords",
+    "name": "insurance suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "insurance"
+    ]
+  },
+  {
+    "id": "insurance_required_policy_coverage",
+    "name": "Insurance policy coverage details present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "insurance"
+    ]
+  },
+  {
+    "id": "phyto_possible_layout_tampering",
+    "name": "phyto possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "phyto"
+    ]
+  },
+  {
+    "id": "phyto_low_confidence_fields",
+    "name": "phyto low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "phyto"
+    ]
+  },
+  {
+    "id": "phyto_normalization_warnings",
+    "name": "phyto normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "phyto"
+    ]
+  },
+  {
+    "id": "phyto_field_source_pollution",
+    "name": "phyto OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "phyto"
+    ]
+  },
+  {
+    "id": "phyto_numeric_plausibility",
+    "name": "phyto numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "phyto"
+    ]
+  },
+  {
+    "id": "phyto_suspicious_keywords",
+    "name": "phyto suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "phyto"
+    ]
+  },
+  {
+    "id": "phyto_required_authority_inspection",
+    "name": "Phyto authority and inspection details present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "phyto"
+    ]
+  },
+  {
+    "id": "agri_phyto_required_treatment_log",
+    "name": "Required VHT/cold-treatment details complete",
+    "severity": "critical",
+    "suite": "perishable",
+    "documents": []
+  },
+  {
+    "id": "coa_possible_layout_tampering",
+    "name": "coa possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "coa_low_confidence_fields",
+    "name": "coa low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "coa_normalization_warnings",
+    "name": "coa normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "coa_field_source_pollution",
+    "name": "coa OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "coa_numeric_plausibility",
+    "name": "coa numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "coa_suspicious_keywords",
+    "name": "coa suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "metal_coa_purity_minimum",
+    "name": "Metal assay purity minimum",
+    "severity": "critical",
+    "suite": "metals",
+    "documents": []
+  },
+  {
+    "id": "metal_coa_impurity_limits",
+    "name": "Metal assay deleterious-element limits",
+    "severity": "major",
+    "suite": "metals",
+    "documents": []
+  },
+  {
+    "id": "sugar_coa_polarization",
+    "name": "Sugar polarization minimum",
+    "severity": "critical",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "sugar_coa_color",
+    "name": "Sugar ICUMSA colour specification",
+    "severity": "major",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "sugar_coa_moisture",
+    "name": "Sugar moisture specification",
+    "severity": "major",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "oil_coa_ffa",
+    "name": "Edible-oil FFA specification",
+    "severity": "major",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "oil_coa_moisture_impurities",
+    "name": "Edible-oil moisture and impurities",
+    "severity": "major",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "oil_coa_peroxide",
+    "name": "Edible-oil peroxide value",
+    "severity": "major",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "fert_coa_biuret",
+    "name": "Urea biuret specification",
+    "severity": "major",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "fert_coa_particle_size",
+    "name": "Granular-urea particle-size distribution",
+    "severity": "major",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "coa_certificate_number_issuer_date",
+    "name": "coa certificate number, issuer, and date present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "coa_sample_before_issue",
+    "name": "coa sample/inspection before issue date",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "coa_numeric_result_range",
+    "name": "coa numeric result range",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "coa_marine_distillate_flashpoint_minimum",
+    "name": "CoA marine gasoil/diesel minimum flash point",
+    "severity": "critical",
+    "suite": "petroleum",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "coa_fuel_sulfur_limit",
+    "name": "CoA fuel sulfur content within global or ECA limit",
+    "severity": "critical",
+    "suite": "petroleum",
+    "documents": [
+      "coa"
+    ]
+  },
+  {
+    "id": "quality_certificate_possible_layout_tampering",
+    "name": "quality_certificate possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "quality_certificate_low_confidence_fields",
+    "name": "quality_certificate low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "quality_certificate_normalization_warnings",
+    "name": "quality_certificate normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "quality_certificate_field_source_pollution",
+    "name": "quality_certificate OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "quality_certificate_numeric_plausibility",
+    "name": "quality_certificate numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "quality_certificate_suspicious_keywords",
+    "name": "quality_certificate suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "grain_quality_moisture_maximum",
+    "name": "Grain/oilseed moisture maximum",
+    "severity": "major",
+    "suite": "grain",
+    "documents": []
+  },
+  {
+    "id": "grain_quality_foreign_matter_maximum",
+    "name": "Grain/oilseed foreign matter maximum",
+    "severity": "major",
+    "suite": "grain",
+    "documents": []
+  },
+  {
+    "id": "metal_quality_certificate_purity_minimum",
+    "name": "Metal assay purity minimum",
+    "severity": "critical",
+    "suite": "metals",
+    "documents": []
+  },
+  {
+    "id": "metal_quality_certificate_impurity_limits",
+    "name": "Metal assay deleterious-element limits",
+    "severity": "major",
+    "suite": "metals",
+    "documents": []
+  },
+  {
+    "id": "sugar_quality_certificate_polarization",
+    "name": "Sugar polarization minimum",
+    "severity": "critical",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "sugar_quality_certificate_color",
+    "name": "Sugar ICUMSA colour specification",
+    "severity": "major",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "sugar_quality_certificate_moisture",
+    "name": "Sugar moisture specification",
+    "severity": "major",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "oil_quality_certificate_ffa",
+    "name": "Edible-oil FFA specification",
+    "severity": "major",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "oil_quality_certificate_moisture_impurities",
+    "name": "Edible-oil moisture and impurities",
+    "severity": "major",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "oil_quality_certificate_peroxide",
+    "name": "Edible-oil peroxide value",
+    "severity": "major",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "fert_quality_certificate_biuret",
+    "name": "Urea biuret specification",
+    "severity": "major",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "fert_quality_certificate_particle_size",
+    "name": "Granular-urea particle-size distribution",
+    "severity": "major",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "quality_certificate_certificate_number_issuer_date",
+    "name": "quality_certificate certificate number, issuer, and date present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "quality_certificate_sample_before_issue",
+    "name": "quality_certificate sample/inspection before issue date",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "quality_certificate_numeric_result_range",
+    "name": "quality_certificate numeric result range",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "weight_possible_layout_tampering",
+    "name": "weight possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "weight"
+    ]
+  },
+  {
+    "id": "weight_low_confidence_fields",
+    "name": "weight low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "weight"
+    ]
+  },
+  {
+    "id": "weight_normalization_warnings",
+    "name": "weight normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "weight"
+    ]
+  },
+  {
+    "id": "weight_field_source_pollution",
+    "name": "weight OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "weight"
+    ]
+  },
+  {
+    "id": "weight_numeric_plausibility",
+    "name": "weight numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "weight"
+    ]
+  },
+  {
+    "id": "weight_suspicious_keywords",
+    "name": "weight suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "weight"
+    ]
+  },
+  {
+    "id": "weight_certificate_number_issuer_date",
+    "name": "weight certificate number, issuer, and date present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "weight"
+    ]
+  },
+  {
+    "id": "weight_sample_before_issue",
+    "name": "weight sample/inspection before issue date",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "weight"
+    ]
+  },
+  {
+    "id": "weight_numeric_result_range",
+    "name": "weight numeric result range",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "weight"
+    ]
+  },
+  {
+    "id": "moisture_possible_layout_tampering",
+    "name": "moisture possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "moisture"
+    ]
+  },
+  {
+    "id": "moisture_low_confidence_fields",
+    "name": "moisture low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "moisture"
+    ]
+  },
+  {
+    "id": "moisture_normalization_warnings",
+    "name": "moisture normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "moisture"
+    ]
+  },
+  {
+    "id": "moisture_field_source_pollution",
+    "name": "moisture OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "moisture"
+    ]
+  },
+  {
+    "id": "moisture_numeric_plausibility",
+    "name": "moisture numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "moisture"
+    ]
+  },
+  {
+    "id": "moisture_suspicious_keywords",
+    "name": "moisture suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "moisture"
+    ]
+  },
+  {
+    "id": "moisture_certificate_number_issuer_date",
+    "name": "moisture certificate number, issuer, and date present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "moisture"
+    ]
+  },
+  {
+    "id": "moisture_sample_before_issue",
+    "name": "moisture sample/inspection before issue date",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "moisture"
+    ]
+  },
+  {
+    "id": "moisture_numeric_result_range",
+    "name": "moisture numeric result range",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "moisture"
+    ]
+  },
+  {
+    "id": "ullage_possible_layout_tampering",
+    "name": "ullage possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "ullage_low_confidence_fields",
+    "name": "ullage low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "ullage_normalization_warnings",
+    "name": "ullage normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "ullage_field_source_pollution",
+    "name": "ullage OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "ullage_numeric_plausibility",
+    "name": "ullage numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "ullage_suspicious_keywords",
+    "name": "ullage suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "ullage_certificate_number_issuer_date",
+    "name": "ullage certificate number, issuer, and date present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "ullage_sample_before_issue",
+    "name": "ullage sample/inspection before issue date",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "ullage_numeric_result_range",
+    "name": "ullage numeric result range",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "ullage_nsv_gsv_tcw_reconciliation",
+    "name": "Ullage NSV reconciles to GSV after TCW deduction",
+    "severity": "major",
+    "suite": "petroleum",
+    "documents": [
+      "ullage"
+    ]
+  },
+  {
+    "id": "draft_survey_possible_layout_tampering",
+    "name": "draft_survey possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "draft_survey"
+    ]
+  },
+  {
+    "id": "draft_survey_low_confidence_fields",
+    "name": "draft_survey low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "draft_survey"
+    ]
+  },
+  {
+    "id": "draft_survey_normalization_warnings",
+    "name": "draft_survey normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "draft_survey"
+    ]
+  },
+  {
+    "id": "draft_survey_field_source_pollution",
+    "name": "draft_survey OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "draft_survey"
+    ]
+  },
+  {
+    "id": "draft_survey_numeric_plausibility",
+    "name": "draft_survey numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "draft_survey"
+    ]
+  },
+  {
+    "id": "draft_survey_suspicious_keywords",
+    "name": "draft_survey suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "draft_survey"
+    ]
+  },
+  {
+    "id": "draft_survey_certificate_number_issuer_date",
+    "name": "draft_survey certificate number, issuer, and date present",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "draft_survey"
+    ]
+  },
+  {
+    "id": "draft_survey_sample_before_issue",
+    "name": "draft_survey sample/inspection before issue date",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "draft_survey"
+    ]
+  },
+  {
+    "id": "draft_survey_numeric_result_range",
+    "name": "draft_survey numeric result range",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "draft_survey"
+    ]
+  },
+  {
+    "id": "temperature_log_possible_layout_tampering",
+    "name": "temperature_log possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "temperature_log"
+    ]
+  },
+  {
+    "id": "temperature_log_low_confidence_fields",
+    "name": "temperature_log low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "temperature_log"
+    ]
+  },
+  {
+    "id": "temperature_log_normalization_warnings",
+    "name": "temperature_log normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "temperature_log"
+    ]
+  },
+  {
+    "id": "temperature_log_field_source_pollution",
+    "name": "temperature_log OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "temperature_log"
+    ]
+  },
+  {
+    "id": "temperature_log_numeric_plausibility",
+    "name": "temperature_log numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "temperature_log"
+    ]
+  },
+  {
+    "id": "temperature_log_suspicious_keywords",
+    "name": "temperature_log suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "temperature_log"
+    ]
+  },
+  {
+    "id": "agri_reefer_temperature_excursion",
+    "name": "Reefer temperature within commodity limits",
+    "severity": "critical",
+    "suite": "perishable",
+    "documents": []
+  },
+  {
+    "id": "import_permit_possible_layout_tampering",
+    "name": "import_permit possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "import_permit"
+    ]
+  },
+  {
+    "id": "import_permit_low_confidence_fields",
+    "name": "import_permit low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "import_permit"
+    ]
+  },
+  {
+    "id": "import_permit_normalization_warnings",
+    "name": "import_permit normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "import_permit"
+    ]
+  },
+  {
+    "id": "import_permit_field_source_pollution",
+    "name": "import_permit OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "import_permit"
+    ]
+  },
+  {
+    "id": "import_permit_numeric_plausibility",
+    "name": "import_permit numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "import_permit"
+    ]
+  },
+  {
+    "id": "import_permit_suspicious_keywords",
+    "name": "import_permit suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "import_permit"
+    ]
+  },
+  {
+    "id": "assay_possible_layout_tampering",
+    "name": "assay possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "assay"
+    ]
+  },
+  {
+    "id": "assay_low_confidence_fields",
+    "name": "assay low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "assay"
+    ]
+  },
+  {
+    "id": "assay_normalization_warnings",
+    "name": "assay normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "assay"
+    ]
+  },
+  {
+    "id": "assay_field_source_pollution",
+    "name": "assay OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "assay"
+    ]
+  },
+  {
+    "id": "assay_numeric_plausibility",
+    "name": "assay numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "assay"
+    ]
+  },
+  {
+    "id": "assay_suspicious_keywords",
+    "name": "assay suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "assay"
+    ]
+  },
+  {
+    "id": "metal_assay_purity_minimum",
+    "name": "Metal assay purity minimum",
+    "severity": "critical",
+    "suite": "metals",
+    "documents": []
+  },
+  {
+    "id": "metal_assay_impurity_limits",
+    "name": "Metal assay deleterious-element limits",
+    "severity": "major",
+    "suite": "metals",
+    "documents": []
+  },
+  {
+    "id": "sugar_assay_polarization",
+    "name": "Sugar polarization minimum",
+    "severity": "critical",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "sugar_assay_color",
+    "name": "Sugar ICUMSA colour specification",
+    "severity": "major",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "sugar_assay_moisture",
+    "name": "Sugar moisture specification",
+    "severity": "major",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "fert_assay_npk_grade",
+    "name": "Fertilizer N-P-K grade reconciliation",
+    "severity": "critical",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "weighbridge_possible_layout_tampering",
+    "name": "weighbridge possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "weighbridge"
+    ]
+  },
+  {
+    "id": "weighbridge_low_confidence_fields",
+    "name": "weighbridge low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "weighbridge"
+    ]
+  },
+  {
+    "id": "weighbridge_normalization_warnings",
+    "name": "weighbridge normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "weighbridge"
+    ]
+  },
+  {
+    "id": "weighbridge_field_source_pollution",
+    "name": "weighbridge OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "weighbridge"
+    ]
+  },
+  {
+    "id": "weighbridge_numeric_plausibility",
+    "name": "weighbridge numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "weighbridge"
+    ]
+  },
+  {
+    "id": "weighbridge_suspicious_keywords",
+    "name": "weighbridge suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "weighbridge"
+    ]
+  },
+  {
+    "id": "tank_cleanliness_possible_layout_tampering",
+    "name": "tank_cleanliness possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "tank_cleanliness"
+    ]
+  },
+  {
+    "id": "tank_cleanliness_low_confidence_fields",
+    "name": "tank_cleanliness low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "tank_cleanliness"
+    ]
+  },
+  {
+    "id": "tank_cleanliness_normalization_warnings",
+    "name": "tank_cleanliness normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "tank_cleanliness"
+    ]
+  },
+  {
+    "id": "tank_cleanliness_field_source_pollution",
+    "name": "tank_cleanliness OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "tank_cleanliness"
+    ]
+  },
+  {
+    "id": "tank_cleanliness_numeric_plausibility",
+    "name": "tank_cleanliness numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "tank_cleanliness"
+    ]
+  },
+  {
+    "id": "tank_cleanliness_suspicious_keywords",
+    "name": "tank_cleanliness suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "tank_cleanliness"
+    ]
+  },
+  {
+    "id": "oil_tank_previous_cargo_banned_list",
+    "name": "Edible-oil previous cargo suitability",
+    "severity": "critical",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "heating_log_possible_layout_tampering",
+    "name": "heating_log possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "heating_log"
+    ]
+  },
+  {
+    "id": "heating_log_low_confidence_fields",
+    "name": "heating_log low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "heating_log"
+    ]
+  },
+  {
+    "id": "heating_log_normalization_warnings",
+    "name": "heating_log normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "heating_log"
+    ]
+  },
+  {
+    "id": "heating_log_field_source_pollution",
+    "name": "heating_log OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "heating_log"
+    ]
+  },
+  {
+    "id": "heating_log_numeric_plausibility",
+    "name": "heating_log numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "heating_log"
+    ]
+  },
+  {
+    "id": "heating_log_suspicious_keywords",
+    "name": "heating_log suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "heating_log"
+    ]
+  },
+  {
+    "id": "msds_possible_layout_tampering",
+    "name": "msds possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "msds"
+    ]
+  },
+  {
+    "id": "msds_low_confidence_fields",
+    "name": "msds low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "msds"
+    ]
+  },
+  {
+    "id": "msds_normalization_warnings",
+    "name": "msds normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "msds"
+    ]
+  },
+  {
+    "id": "msds_field_source_pollution",
+    "name": "msds OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "msds"
+    ]
+  },
+  {
+    "id": "msds_numeric_plausibility",
+    "name": "msds numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "msds"
+    ]
+  },
+  {
+    "id": "msds_suspicious_keywords",
+    "name": "msds suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "msds"
+    ]
+  },
+  {
+    "id": "fert_msds_ammonium_nitrate_detonation",
+    "name": "Ammonium-nitrate detonation-test evidence",
+    "severity": "critical",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "safety_cert_possible_layout_tampering",
+    "name": "safety_cert possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "safety_cert"
+    ]
+  },
+  {
+    "id": "safety_cert_low_confidence_fields",
+    "name": "safety_cert low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "safety_cert"
+    ]
+  },
+  {
+    "id": "safety_cert_normalization_warnings",
+    "name": "safety_cert normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "safety_cert"
+    ]
+  },
+  {
+    "id": "safety_cert_field_source_pollution",
+    "name": "safety_cert OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "safety_cert"
+    ]
+  },
+  {
+    "id": "safety_cert_numeric_plausibility",
+    "name": "safety_cert numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "safety_cert"
+    ]
+  },
+  {
+    "id": "safety_cert_suspicious_keywords",
+    "name": "safety_cert suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "safety_cert"
+    ]
+  },
+  {
+    "id": "fert_safety_cert_ammonium_nitrate_detonation",
+    "name": "Ammonium-nitrate detonation-test evidence",
+    "severity": "critical",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "cargo_manifest_possible_layout_tampering",
+    "name": "cargo_manifest possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "cargo_manifest"
+    ]
+  },
+  {
+    "id": "cargo_manifest_low_confidence_fields",
+    "name": "cargo_manifest low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "cargo_manifest"
+    ]
+  },
+  {
+    "id": "cargo_manifest_normalization_warnings",
+    "name": "cargo_manifest normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "cargo_manifest"
+    ]
+  },
+  {
+    "id": "cargo_manifest_field_source_pollution",
+    "name": "cargo_manifest OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "cargo_manifest"
+    ]
+  },
+  {
+    "id": "cargo_manifest_numeric_plausibility",
+    "name": "cargo_manifest numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "cargo_manifest"
+    ]
+  },
+  {
+    "id": "cargo_manifest_suspicious_keywords",
+    "name": "cargo_manifest suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "cargo_manifest"
+    ]
+  },
+  {
+    "id": "surveyor_possible_layout_tampering",
+    "name": "surveyor possible layout tampering",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "surveyor"
+    ]
+  },
+  {
+    "id": "surveyor_low_confidence_fields",
+    "name": "surveyor low confidence critical fields",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "surveyor"
+    ]
+  },
+  {
+    "id": "surveyor_normalization_warnings",
+    "name": "surveyor normalization warnings",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "surveyor"
+    ]
+  },
+  {
+    "id": "surveyor_field_source_pollution",
+    "name": "surveyor OCR field-source pollution",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "surveyor"
+    ]
+  },
+  {
+    "id": "surveyor_numeric_plausibility",
+    "name": "surveyor numeric plausibility",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "surveyor"
+    ]
+  },
+  {
+    "id": "surveyor_suspicious_keywords",
+    "name": "surveyor suspicious raw-text keywords",
+    "severity": "minor",
+    "suite": "general",
+    "documents": [
+      "surveyor"
+    ]
+  },
+  {
+    "id": "trade_instrument_mt799_screening",
+    "name": "mt799 authenticity, terms, and legal-effect screening",
+    "severity": "critical",
+    "suite": "trade_instruments",
+    "documents": [
+      "mt799"
+    ]
+  },
+  {
+    "id": "trade_instrument_proof_of_funds_screening",
+    "name": "proof_of_funds authenticity, terms, and legal-effect screening",
+    "severity": "critical",
+    "suite": "trade_instruments",
+    "documents": [
+      "proof_of_funds"
+    ]
+  },
+  {
+    "id": "trade_instrument_standby_lc_screening",
+    "name": "standby_lc authenticity, terms, and legal-effect screening",
+    "severity": "critical",
+    "suite": "trade_instruments",
+    "documents": [
+      "standby_lc"
+    ]
+  },
+  {
+    "id": "trade_instrument_bank_guarantee_screening",
+    "name": "bank_guarantee authenticity, terms, and legal-effect screening",
+    "severity": "critical",
+    "suite": "trade_instruments",
+    "documents": [
+      "bank_guarantee"
+    ]
+  },
+  {
+    "id": "inv_pl_qty",
+    "name": "Invoice vs PL quantity mismatch",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "pl"
+    ]
+  },
+  {
+    "id": "inv_pl_line_item_qty",
+    "name": "Invoice vs PL line-item quantity mismatch",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "pl"
+    ]
+  },
+  {
+    "id": "inv_spa_qty",
+    "name": "Invoice vs SPA quantity mismatch",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "spa"
+    ]
+  },
+  {
+    "id": "cross_origin_match",
+    "name": "Origin mismatch across documents",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "bl",
+      "pl"
+    ]
+  },
+  {
+    "id": "cross_invoice_bl_parties",
+    "name": "Invoice vs BL party mismatch",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "bl"
+    ]
+  },
+  {
+    "id": "cross_invoice_lc_amount",
+    "name": "Invoice exceeds LC amount",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "lc"
+    ]
+  },
+  {
+    "id": "cross_bl_within_lc_window",
+    "name": "BL date within LC shipment window",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl",
+      "lc"
+    ]
+  },
+  {
+    "id": "spa_quality_check",
+    "name": "SPA quality compliance check",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "spa",
+      "coa"
+    ]
+  },
+  {
+    "id": "draft_survey_weight_match",
+    "name": "Draft survey weight match",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "draft_survey_loading",
+      "draft_survey_discharge"
+    ]
+  },
+  {
+    "id": "invoice_vs_survey_weight",
+    "name": "Invoice vs Draft Survey weight match",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "draft_survey_loading"
+    ]
+  },
+  {
+    "id": "api_gravity_match",
+    "name": "API gravity match between invoice and quality certificate",
+    "severity": "major",
+    "suite": "petroleum",
+    "documents": [
+      "invoice",
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "moisture_limit_check",
+    "name": "Moisture limit check against LC",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "moisture_report",
+      "lc"
+    ]
+  },
+  {
+    "id": "chemical_composition_check",
+    "name": "Chemical composition check against LC",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coa",
+      "lc"
+    ]
+  },
+  {
+    "id": "density_match_check",
+    "name": "Density match between invoice and quality certificate",
+    "severity": "major",
+    "suite": "petroleum",
+    "documents": [
+      "invoice",
+      "quality_certificate"
+    ]
+  },
+  {
+    "id": "flashpoint_check",
+    "name": "Flashpoint check against LC",
+    "severity": "major",
+    "suite": "petroleum",
+    "documents": [
+      "quality_certificate",
+      "lc"
+    ]
+  },
+  {
+    "id": "volume_temp_density_check",
+    "name": "Volume at temperature density check between invoice and ullage report",
+    "severity": "major",
+    "suite": "petroleum",
+    "documents": [
+      "invoice",
+      "ullage_report"
+    ]
+  },
+  {
+    "id": "sugar_cross_pol_invoice_adjustment",
+    "name": "Raw-sugar polarization invoice adjustment",
+    "severity": "major",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "sugar_cross_bag_weight_reconciliation",
+    "name": "Sugar bags reconcile to BL net weight",
+    "severity": "critical",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "sugar_cross_hatch_clean_dry",
+    "name": "Sugar hatch cleanliness and dryness certification",
+    "severity": "critical",
+    "suite": "sugar",
+    "documents": []
+  },
+  {
+    "id": "oil_cross_ffa_price_allowance",
+    "name": "Edible-oil FFA invoice allowance",
+    "severity": "major",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "oil_cross_ullage_bl_ocean_loss",
+    "name": "Edible-oil ullage/BL quantity reconciliation",
+    "severity": "major",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "oil_cross_heating_log",
+    "name": "Edible-oil handling temperature",
+    "severity": "major",
+    "suite": "edible_oil",
+    "documents": []
+  },
+  {
+    "id": "fert_cross_nutrient_deficiency_deduction",
+    "name": "Fertilizer nutrient-deficiency invoice adjustment",
+    "severity": "major",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "fert_cross_weight_draft_variance",
+    "name": "Fertilizer shore/draft weight variance",
+    "severity": "major",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "fert_cross_un_number_consistency",
+    "name": "Fertilizer UN-number consistency",
+    "severity": "critical",
+    "suite": "fertilizer",
+    "documents": []
+  },
+  {
+    "id": "agri_cross_phyto_inspection_before_shipment",
+    "name": "Phyto inspection no later than BL shipment",
+    "severity": "critical",
+    "suite": "perishable",
+    "documents": [
+      "phyto",
+      "bl"
+    ]
+  },
+  {
+    "id": "agri_cross_invoice_phyto_botanical_mapping",
+    "name": "Commercial-to-botanical commodity mapping",
+    "severity": "critical",
+    "suite": "perishable",
+    "documents": [
+      "invoice",
+      "phyto"
+    ]
+  },
+  {
+    "id": "agri_cross_pl_phyto_package_count",
+    "name": "Packing-list and phyto package counts",
+    "severity": "major",
+    "suite": "perishable",
+    "documents": [
+      "pl",
+      "phyto"
+    ]
+  },
+  {
+    "id": "agri_cross_import_permit_declarations",
+    "name": "Import-permit declarations reproduced on phyto",
+    "severity": "critical",
+    "suite": "perishable",
+    "documents": [
+      "import_permit",
+      "phyto"
+    ]
+  },
+  {
+    "id": "grain_cross_moisture_price_allowance",
+    "name": "Grain moisture price allowance calculation",
+    "severity": "major",
+    "suite": "grain",
+    "documents": [
+      "quality_certificate",
+      "invoice"
+    ]
+  },
+  {
+    "id": "grain_cross_draft_shore_weight_variance",
+    "name": "Grain draft-survey versus shore/BL weight variance",
+    "severity": "major",
+    "suite": "grain",
+    "documents": []
+  },
+  {
+    "id": "metal_cross_dmt_invoice_billing_weight",
+    "name": "Metal concentrate DMT versus invoice billing weight",
+    "severity": "critical",
+    "suite": "metals",
+    "documents": []
+  },
+  {
+    "id": "metal_cross_draft_weighbridge_variance",
+    "name": "Metal draft-survey versus weighbridge WMT",
+    "severity": "major",
+    "suite": "metals",
+    "documents": []
+  },
+  {
+    "id": "cross_invoice_pl_net_weight_rounding",
+    "name": "Invoice and PL net-weight rounding tolerance",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "pl"
+    ]
+  },
+  {
+    "id": "cross_bl_pl_gross_weight_ocean_tolerance",
+    "name": "BL and PL gross-weight ocean-scale tolerance",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "bl",
+      "pl"
+    ]
+  },
+  {
+    "id": "cross_bl_freight_invoice_incoterm",
+    "name": "BL freight term compatible with invoice Incoterm",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "bl",
+      "invoice"
+    ]
+  },
+  {
+    "id": "cross_invoice_goods_vs_coo_inspection",
+    "name": "Invoice goods description non-conflicting with COO and inspection",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "cross_all_docs_parties_and_ports",
+    "name": "All-document parties and ports non-conflicting",
+    "severity": "critical",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_invoice_lc_quantity_tolerance",
+    "name": "Invoice quantity within LC contractual tolerance",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "lc"
+    ]
+  },
+  {
+    "id": "cross_bl_onboard_by_lc_latest_shipment",
+    "name": "BL shipped-on-board date within LC latest shipment date",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "bl",
+      "lc"
+    ]
+  },
+  {
+    "id": "cross_bl_presentation_window",
+    "name": "BL presentation within LC or default presentation period",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "bl",
+      "lc"
+    ]
+  },
+  {
+    "id": "cross_coo_issue_not_after_bl_shipment",
+    "name": "COO issue date not after BL shipment unless retrospective",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "coo",
+      "bl"
+    ]
+  },
+  {
+    "id": "cross_invoice_insurance_coverage",
+    "name": "Invoice vs insurance value coverage",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "insurance"
+    ]
+  },
+  {
+    "id": "cross_invoice_lc_currency",
+    "name": "Invoice vs LC currency match",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "invoice",
+      "lc"
+    ]
+  },
+  {
+    "id": "cross_lc_required_documents_present",
+    "name": "LC required documents present",
+    "severity": "critical",
+    "suite": "general",
+    "documents": [
+      "lc"
+    ]
+  },
+  {
+    "id": "cross_invoice_reference_consistency",
+    "name": "Invoice number reference consistency",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_container_number_consistency",
+    "name": "Container number consistency",
+    "severity": "critical",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_seal_number_consistency",
+    "name": "Seal number consistency",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_vessel_voyage_consistency",
+    "name": "Vessel and voyage consistency",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_route_consistency",
+    "name": "Loading/discharge route consistency",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_discharge_route_consistency",
+    "name": "Discharge port consistency",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_commodity_consistency",
+    "name": "Commodity consistency across documents",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_origin_country_consistency_extended",
+    "name": "Origin country consistency across certificates",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_hs_code_consistency",
+    "name": "HS code consistency across documents",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "tbml_benchmark_price_outlier",
+    "name": "Invoice unit price against commodity benchmark",
+    "severity": "major",
+    "suite": "general",
+    "documents": [
+      "invoice"
+    ]
+  },
+  {
+    "id": "tbml_dual_use_hs_screening",
+    "name": "HS code against versioned dual-use control-list mapping",
+    "severity": "critical",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "tbml_customs_tariff_gap",
+    "name": "Declared customs duty against versioned tariff reference",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "tbml_eu_dual_use_articles_3_5",
+    "name": "EU 2021/821 Articles 3-5 and TARIC export-control screening",
+    "severity": "critical",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_party_consistency_extended",
+    "name": "Party consistency across commercial and certificate documents",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_weight_reconciliation_all_docs",
+    "name": "Weight reconciliation across all cargo documents",
+    "severity": "critical",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_certificate_dates_vs_shipment",
+    "name": "Certificate dates valid against shipment date",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_moisture_result_consistency",
+    "name": "Moisture result consistency",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_density_api_ullage_consistency",
+    "name": "Density/API/ullage consistency",
+    "severity": "major",
+    "suite": "petroleum",
+    "documents": []
+  },
+  {
+    "id": "petro_cross_coa_api_gravity_reproducibility",
+    "name": "Refinery versus surveyor/load CoA API gravity",
+    "severity": "critical",
+    "suite": "petroleum",
+    "documents": []
+  },
+  {
+    "id": "petro_cross_shore_vessel_quantity",
+    "name": "Shore tank versus vessel/BL quantity reconciliation",
+    "severity": "major",
+    "suite": "petroleum",
+    "documents": []
+  },
+  {
+    "id": "petro_cross_invoice_astm_54b_mass",
+    "name": "Surveyor CoA versus invoice ASTM Table 54B mass reconciliation",
+    "severity": "critical",
+    "suite": "petroleum",
+    "documents": []
+  },
+  {
+    "id": "petro_cross_hs_classification_basis",
+    "name": "Petroleum HS classification consistency and basis",
+    "severity": "critical",
+    "suite": "petroleum",
+    "documents": []
+  },
+  {
+    "id": "cross_invoice_ullage_volume_15c",
+    "name": "Invoice vs ullage volume at 15C",
+    "severity": "major",
+    "suite": "petroleum",
+    "documents": [
+      "invoice",
+      "ullage"
+    ]
+  },
+  {
+    "id": "cross_draft_survey_departure_destination",
+    "name": "Draft survey departure/destination reconciliation",
+    "severity": "major",
+    "suite": "general",
+    "documents": []
+  },
+  {
+    "id": "cross_opensanctions_entity_screening",
+    "name": "OpenSanctions entity screening",
+    "severity": "critical",
+    "suite": "general",
+    "documents": []
+  }
+]
