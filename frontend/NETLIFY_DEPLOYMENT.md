@@ -6,12 +6,31 @@ function to submit the GCS object references to TradeLogX.
 
 ## Enable customer authentication
 
-After the first deploy, open the Netlify project, go to **Identity**, and select
-**Enable Identity**. Under **Identity > Registration**, choose **Open** to allow
-the signup page to create accounts, or **Invite only** if every customer must be
-approved first. Email confirmation is enabled by default. Both upload functions
-verify the Netlify Identity session server-side; the dashboard UI alone is not
-the security boundary.
+Enable Identity for this Netlify project. Under **Identity > Registration >
+Registration preferences > Configure**, select **Invite only** and save. This
+server setting is mandatory: removing the signup button does not block direct
+registration requests while registration remains Open.
+
+After approving a registered TradeLogX customer, use **Identity > Users > Invite
+users** with their email address. Netlify sends a personal invitation pointing
+to this dashboard. The app handles its invite token and asks the recipient to set
+and confirm a password. No public signup form is provided. Do not use an ordinary
+shared dashboard URL as an invitation. Customer approval on tradelogx.com is
+manual; automatic registration/payment-to-invitation integration is not set up.
+
+Review existing Identity users separately; changing registration preferences
+is not a cleanup or revocation of previously created accounts. Keep authorized
+accounts and remove unauthorized ones using Netlify's user administration.
+
+Acceptance checks after deployment and the setting change:
+- An unauthenticated visitor sees login and invitation guidance, not signup.
+- Direct public signup is rejected by Identity.
+- An invited customer can set a password and log in; mismatched passwords fail.
+- Invalid, expired, or already-used invitation links cannot create an account.
+- Login continues to work for approved existing users.
+
+Both upload functions verify the Identity session server-side. No invitation
+emails are sent by the frontend; administrators send them through Netlify.
 
 ## Required private environment variables
 
