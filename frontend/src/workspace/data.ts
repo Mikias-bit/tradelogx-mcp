@@ -8,7 +8,7 @@
 
 export type Severity = 'high' | 'medium' | 'low'
 export type DocStatus = 'verified' | 'issue' | 'processing' | 'unverified' | 'failed'
-export type TabId = 'overview' | 'documents' | 'findings' | 'audit' | 'benchmarks' | 'rules'
+export type TabId = 'cases' | 'checks' | 'overview' | 'documents' | 'findings' | 'audit' | 'benchmarks' | 'rules'
 
 export interface TradeDocument {
   name: string
@@ -114,6 +114,8 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
+  { id: 'cases', glyph: 'C', label: 'My cases' },
+  { id: 'checks', glyph: '+', label: 'Checks and coverage' },
   { id: 'workspace', glyph: '⌁', label: 'Workspace' },
   { id: 'documents', glyph: '▤', label: 'Documents' },
   { id: 'rules', glyph: '◇', label: 'Rules library' },

@@ -16,7 +16,7 @@ export default async (request) => {
     }
 
     const { backendUrl, tenantId, tenantApiKey } = tenantConfig()
-    const response = await fetch(`${backendUrl}/v1/cases/${encodeURIComponent(caseId)}`, {
+    const response = await fetch(`${backendUrl}/v1/cases/${encodeURIComponent(caseId)}?include_results=${new URL(request.url).searchParams.get('include_results') === 'false' ? 'false' : 'true'}`, {
       headers: userHeaders(user, tenantId, tenantApiKey),
     })
     const text = await response.text()

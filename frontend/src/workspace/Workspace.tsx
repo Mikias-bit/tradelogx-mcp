@@ -1,3 +1,5 @@
+import CaseHistoryPanel from './CaseHistoryPanel'
+import ChecksPanel from './ChecksPanel'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import AssistantPanel from './AssistantPanel'
 import AuditPanel from './AuditPanel'
@@ -48,6 +50,7 @@ interface StagedFile {
 
 const TABS: ReadonlyArray<[TabId, string]> = [
   ['overview', 'Overview'],
+  ['checks', 'Checks and coverage'],
   ['documents', 'Documents'],
   ['findings', 'Findings'],
   ['audit', 'Audit trail'],
@@ -227,6 +230,20 @@ export default function Workspace() {
       setPageSubtitle(`Processing status: ${state.replaceAll('_', ' ').toLowerCase()}.`)
     }, { signal: controller.signal })
     if (requestVersion.current === version) applyResult(id, completed.result.results!, rows)
+  }
+
+  const openSavedCase = async (id: string) => {
+    const version = ++requestVersion.current
+    polling.current?.abort()
+    setWorking(true); setProcessingError(''); setShowingSample(false)
+    setSelectedFinding(null); setSavedCase(null); setDocuments([]); setStagedFiles([])
+    setValidationResult(undefined); setConfidence(null); setPreliminary(true)
+    setCaseId(id); setCaseState('SUBMITTED'); setActiveTab('overview')
+    setTransactionLabel(`Case ${id.slice(0, 8)}`); setPageTitle('Saved verification')
+    window.sessionStorage.setItem(storageKey, id)
+    try { await monitor(id, [], version) }
+    catch (error) { if (requestVersion.current === version) setProcessingError(error instanceof Error ? error.message : 'Unable to open case') }
+    finally { if (requestVersion.current === version) setWorking(false) }
   }
 
   const refreshCase = async (retry = false) => {
@@ -428,7 +445,7 @@ export default function Workspace() {
       <div className="app-shell">
         <Sidebar
           open={sidebarOpen}
-          activeItem={['documents', 'benchmarks', 'rules', 'audit'].includes(activeTab) ? activeTab : 'workspace'}
+          activeItem={['cases', 'checks', 'documents', 'benchmarks', 'rules', 'audit'].includes(activeTab) ? activeTab : 'workspace'}
           onNavigate={(item) => {
             setActiveTab(item.id === 'workspace' ? 'overview' : item.id as TabId)
             setSidebarOpen(false)
@@ -485,7 +502,9 @@ export default function Workspace() {
                 {['FAILED', 'TIMED_OUT'].includes(caseState) ? <button className="primary" disabled={working} onClick={() => void refreshCase(true)}>Retry as new case</button> : null}
               </div> : processingError ? <p role="alert">{processingError} Select the files and start verification again.</p> : null}
 
-              {!loaded && (activeTab === 'rules' || activeTab === 'benchmarks') ? (
+              {activeTab === 'cases' ? <CaseHistoryPanel onOpen={id => void openSavedCase(id)} />
+              : activeTab === 'checks' ? <ChecksPanel result={validationResult} isSample={showingSample} />
+              : !loaded && (activeTab === 'rules' || activeTab === 'benchmarks') ? (
                 <ReferencePanel mode={activeTab} result={validationResult} isSample={showingSample} onOpenEvidence={openEvidence} />
               ) : !loaded && activeTab === 'documents' ? (
                 <DocumentsPanel documents={documents} onAdd={openUpload} />

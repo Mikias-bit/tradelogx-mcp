@@ -43,21 +43,7 @@ export default function Sidebar({ open, activeItem, onNavigate }: SidebarProps) 
         ))}
       </nav>
 
-      <div className="sidebar-bottom">
-        <div className="usage">
-          <span>Workspace</span>
-          <strong>Sandbox EU</strong>
-          <small>Data region · Frankfurt</small>
-        </div>
-        <button className="user-card">
-          <span className="avatar">MA</span>
-          <span>
-            <strong>Mikias</strong>
-            <small>Administrator</small>
-          </span>
-          <span>•••</span>
-        </button>
-      </div>
+      <div className="sidebar-bottom"><div className="usage"><span>Authenticated workspace</span><small>Case region is shown in My cases.</small></div></div>
     </aside>
   )
 }

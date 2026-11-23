@@ -151,9 +151,9 @@ export async function uploadAndSubmit(
   return submission
 }
 
-export async function getCaseStatus(caseId: string): Promise<CaseStatusResponse> {
+export async function getCaseStatus(caseId: string, includeResults = true): Promise<CaseStatusResponse> {
   const response = await authenticatedFetch(
-    `/.netlify/functions/case-status?case_id=${encodeURIComponent(caseId)}`,
+    `/.netlify/functions/case-status?case_id=${encodeURIComponent(caseId)}&include_results=${includeResults}`,
     { headers: { Accept: 'application/json' }, cache: 'no-store' },
   )
   return responseJson<CaseStatusResponse>(response)
@@ -197,5 +197,12 @@ export async function explainCase(caseId: string, message: string, history: Conv
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ case_id: caseId, message, history: history.slice(-6).map(row => ({ ...row, content: row.content.slice(0, 2000) })) }),
     }),
+  )
+}
+
+export interface CaseHistoryItem { case_id: string; created_at: number | null; data_region: 'eu' | 'us' }
+export async function listCases(cursor?: string) {
+  return responseJson<{ data_region: 'eu' | 'us'; result: { cases: CaseHistoryItem[]; next_cursor: string | null } }>(
+    await authenticatedFetch(`/.netlify/functions/list-cases${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, { cache: 'no-store' }),
   )
 }
