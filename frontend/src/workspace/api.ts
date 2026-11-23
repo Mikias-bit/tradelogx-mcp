@@ -20,7 +20,35 @@ export interface SubmissionResponse {
 
 export type CaseState = 'SUBMITTED' | 'NORMALIZED' | 'PLANNED' | 'SUITES_RUNNING' | 'COMPLETE' | 'RUNNING' | 'FAILED' | 'TIMED_OUT'
 
+export interface EvidenceSummary {
+  coverage_percent: number | null
+  conclusive_checks: number
+  applicable_or_unresolved_checks: number
+  unresolved_checks: number
+  not_applicable_checks: number
+  finding_group_count: number
+  highest_finding_severity: string
+  review_status: string
+  limitations: string
+  finding_groups: Array<Record<string, unknown>>
+}
+export interface HybridReview {
+  status: string
+  reason?: string
+  data_region: string
+  policy_version: string
+  input_hash: string
+  output_hash?: string
+  model_calls: Array<Record<string, unknown>>
+  tool_calls: Array<Record<string, unknown>>
+  interpretations: Array<{ kind: string; explanation: string; suggested_next_step: string; citations: string[] }>
+  questions: string[]
+  evidence: Array<{ id: string; tool: string; value: unknown }>
+}
 export interface ValidationAggregate {
+  evidence_summary?: EvidenceSummary
+  hybrid_review?: HybridReview
+  legacy_penalty_score?: number | null
   violation_count?: number
   verification_status?: string
   passed_rule_count?: number

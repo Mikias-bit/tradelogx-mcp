@@ -1,3 +1,4 @@
+import EvidenceSummaryPanel from './EvidenceSummaryPanel'
 import { CHECK_CARDS, FINDINGS, type TradeDocument } from './data'
 import type { ValidationAggregate } from './api'
 import DocumentRow from './DocumentRow'
@@ -40,6 +41,7 @@ export default function OverviewPanel({
   ] as const
   return (
     <div className="tab-panel">
+      {!isSample ? <EvidenceSummaryPanel result={result} /> : null}
       <div className="summary-grid">
         <article className="summary-card critical-summary">
           <div className="summary-icon">!</div>

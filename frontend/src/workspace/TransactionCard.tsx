@@ -2,6 +2,7 @@ interface TransactionCardProps {
   txId: string
   title: string
   meta: string
+  evidenceCoverage?: number | null
   confidence: number | null
   acknowledged: boolean
   isSample?: boolean
@@ -13,10 +14,13 @@ export default function TransactionCard({
   title,
   meta,
   confidence,
+  evidenceCoverage,
   acknowledged,
   isSample = false,
   statusLabel,
 }: TransactionCardProps) {
+  const isCoverage = !isSample && evidenceCoverage !== undefined
+  const metric = isCoverage ? evidenceCoverage : confidence
   return (
     <div className="transaction-card">
       <div className="transaction-main">
@@ -35,11 +39,12 @@ export default function TransactionCard({
         </div>
       </div>
       <div className="score-block">
-        <small>{isSample ? "Sample confidence" : "Rule score"}</small>
-        <strong>{confidence === null ? "Not available" : `${confidence ?? 0}%`}</strong>
+        <small>{isSample ? "Sample confidence" : isCoverage ? "Evidence coverage" : "Legacy rule score"}</small>
+        <strong>{metric === null ? "Not available" : `${metric ?? 0}%`}</strong>
         <div className="score-bar">
-          <i style={{ width: `${confidence ?? 0}%` }} />
+          <i style={{ width: `${metric ?? 0}%` }} />
         </div>
+        {isCoverage ? <small>Conclusive checks, not authenticity</small> : null}
       </div>
     </div>
   )

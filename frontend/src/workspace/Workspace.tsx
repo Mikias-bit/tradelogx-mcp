@@ -1,3 +1,4 @@
+import HybridReviewPanel from './HybridReviewPanel'
 import CaseHistoryPanel from './CaseHistoryPanel'
 import ChecksPanel from './ChecksPanel'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -51,6 +52,7 @@ interface StagedFile {
 const TABS: ReadonlyArray<[TabId, string]> = [
   ['overview', 'Overview'],
   ['checks', 'Checks and coverage'],
+  ['hybrid', 'AI review'],
   ['documents', 'Documents'],
   ['findings', 'Findings'],
   ['audit', 'Audit trail'],
@@ -445,7 +447,7 @@ export default function Workspace() {
       <div className="app-shell">
         <Sidebar
           open={sidebarOpen}
-          activeItem={['cases', 'checks', 'documents', 'benchmarks', 'rules', 'audit'].includes(activeTab) ? activeTab : 'workspace'}
+          activeItem={['hybrid', 'cases', 'checks', 'documents', 'benchmarks', 'rules', 'audit'].includes(activeTab) ? activeTab : 'workspace'}
           onNavigate={(item) => {
             setActiveTab(item.id === 'workspace' ? 'overview' : item.id as TabId)
             setSidebarOpen(false)
@@ -502,7 +504,8 @@ export default function Workspace() {
                 {['FAILED', 'TIMED_OUT'].includes(caseState) ? <button className="primary" disabled={working} onClick={() => void refreshCase(true)}>Retry as new case</button> : null}
               </div> : processingError ? <p role="alert">{processingError} Select the files and start verification again.</p> : null}
 
-              {activeTab === 'cases' ? <CaseHistoryPanel onOpen={id => void openSavedCase(id)} />
+              {activeTab === 'hybrid' ? <HybridReviewPanel result={validationResult} isSample={showingSample} />
+              : activeTab === 'cases' ? <CaseHistoryPanel onOpen={id => void openSavedCase(id)} />
               : activeTab === 'checks' ? <ChecksPanel result={validationResult} isSample={showingSample} />
               : !loaded && (activeTab === 'rules' || activeTab === 'benchmarks') ? (
                 <ReferencePanel mode={activeTab} result={validationResult} isSample={showingSample} onOpenEvidence={openEvidence} />
@@ -523,6 +526,7 @@ export default function Workspace() {
                       ? 'CIF Rotterdam · 100 MT · USD 927,350 · ETA 28 Sep 2026'
                       : Array.from(new Set(documents.map((document) => document.type))).join(' · ')}
                     confidence={confidence}
+                    evidenceCoverage={showingSample ? undefined : validationResult?.evidence_summary?.coverage_percent}
                     acknowledged={acknowledged}
                     isSample={showingSample}
                     statusLabel={showingSample ? 'Sample ? review needed' : ['FAILED', 'TIMED_OUT'].includes(caseState) ? 'Processing failed' : preliminary ? 'Not yet verified' : 'Review evidence'}
