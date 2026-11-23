@@ -45,7 +45,7 @@ export default function DocumentsPanel({ documents, onAdd }: DocumentsPanelProps
             </span>
             <span>{doc.type}</span>
             <span>
-              {doc.status === 'processing' ? (
+              {doc.confidence === null ? ('Not measured') : doc.status === 'processing' ? (
                 'Extracting…'
               ) : (
                 <>

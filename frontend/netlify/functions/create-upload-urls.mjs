@@ -1,17 +1,17 @@
 import { randomUUID } from 'node:crypto'
 import { getUser } from '@netlify/identity'
 import { json, methodNotAllowed, safeFilename, storageClient, tenantConfig } from './_shared.mjs'
+import { ownerPrefix, sameOrigin, userHeaders } from './_shared.mjs'
 
 const MAX_FILES = 25
 const MAX_FILE_BYTES = 25 * 1024 * 1024
 const ALLOWED_TYPES = new Set([
-  'application/pdf', 'image/jpeg', 'image/png', 'text/csv',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/pdf', 'image/jpeg', 'image/png', 'image/tiff', 'image/webp',
 ])
 
 export default async (request) => {
   if (request.method !== 'POST') return methodNotAllowed()
+  if (!sameOrigin(request)) return new Response('Forbidden', { status: 403 })
   try {
     const user = await getUser()
     if (!user) return json({ error: 'Authentication required' }, 401)
@@ -20,7 +20,7 @@ export default async (request) => {
     if (!Array.isArray(files) || files.length === 0 || files.length > MAX_FILES) {
       return json({ error: `files must contain between 1 and ${MAX_FILES} items` }, 400)
     }
-    const { bucket } = tenantConfig()
+    const { bucket, tenantId } = tenantConfig()
     const storage = storageClient()
     const expires = Date.now() + 15 * 60 * 1000
     const uploads = await Promise.all(files.map(async (item) => {
@@ -34,9 +34,10 @@ export default async (request) => {
         throw new Error(`${filename} has unsupported content type ${contentType}`)
       }
       const date = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)
-      const gcsObject = `uploads/${date}_${randomUUID()}_${filename}`
+      const gcsObject = `${ownerPrefix(tenantId, user.id)}${date}_${randomUUID()}_${filename}`
       const [uploadUrl] = await storage.bucket(bucket).file(gcsObject).getSignedUrl({
         version: 'v4', action: 'write', expires, contentType,
+        extensionHeaders: { 'x-goog-if-generation-match': '0' },
       })
       return {
         filename,

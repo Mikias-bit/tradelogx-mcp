@@ -31,11 +31,11 @@ export default function FindingsPanel({
     const ruleMeta = (context.rule_meta || {}) as Record<string, unknown>
     return {
       ruleId: String(violation.rule_id || ''),
-      evidence: context,
+      evidence: { ...context, evaluation_status: violation.evaluation_status || "NOT_VERIFIED" },
       severity: backendSeverity === 'critical' ? 'high' : backendSeverity === 'major' ? 'medium' : 'low',
       category: String(ruleMeta.suite || violation.scope || 'validation'),
       title: String(violation.title || violation.name || violation.rule_id || `Finding ${index + 1}`),
-      body: String(violation.description || context.message || violation.message || 'This validation rule requires review.'),
+      body: `${String(violation.evaluation_status || 'NOT_VERIFIED').replaceAll('_', ' ')}: ` + String(violation.description || context.message || violation.message || 'This validation rule requires review.'),
       sources: [violation.document_key, ruleMeta.suite].filter(Boolean).map(String),
     }
   })
@@ -48,7 +48,7 @@ export default function FindingsPanel({
       <div className="panel-title">
         <div>
           <h2>Findings</h2>
-          <p>Prioritized discrepancies with linked evidence and recommended action.</p>
+          <p>Discrepancies and incomplete checks with their recorded evidence.</p>
         </div>
         <div className="filter-set">
           {SEVERITY_CHIPS.map(([value, label]) => (
@@ -64,7 +64,7 @@ export default function FindingsPanel({
       </div>
 
       <div className="finding-list">
-        {!visible.length ? <p>No validation findings were reported for this case.</p> : null}
+        {!visible.length ? <p>No findings are available in this view. This does not establish verification.</p> : null}
         {visible.map((finding, i) => (
           <article className="finding-card" data-severity={finding.severity} key={`${finding.ruleId || finding.title}-${i}`}>
             <span className={`severity ${finding.severity}`}>{finding.severity.toUpperCase()}</span>

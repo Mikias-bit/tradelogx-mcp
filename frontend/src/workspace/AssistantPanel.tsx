@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useRef, useState } from 'react'
 import type { ThreadMessage } from './messages'
 
 interface AssistantPanelProps {
+  busy: boolean
   open: boolean
   messages: Array<ThreadMessage>
   showSuggestions: boolean
@@ -14,6 +15,7 @@ interface AssistantPanelProps {
 const SUGGESTIONS = ['Explain the high issue', 'What should I do next?']
 
 export default function AssistantPanel({
+  busy,
   open,
   messages,
   showSuggestions,
@@ -34,7 +36,7 @@ export default function AssistantPanel({
   const submit = (event: FormEvent) => {
     event.preventDefault()
     const text = draft.trim()
-    if (!text) return
+    if (!text || busy) return
     onSend(text)
     setDraft('')
   }
@@ -48,7 +50,7 @@ export default function AssistantPanel({
         <div>
           <strong>Trade Assistant</strong>
           <span>
-            <i></i> Ready to help
+            <i></i> {busy ? 'Preparing explanation...' : 'Explanation only'}
           </span>
         </div>
         <button aria-label="Close assistant" onClick={onClose}>
@@ -97,13 +99,13 @@ export default function AssistantPanel({
           ))}
         </div>
         <form onSubmit={submit}>
-          <textarea
+          <textarea disabled={busy} maxLength={4000}
             rows={1}
             placeholder="Ask about this trade file…"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
-          <button type="submit" aria-label="Send">
+          <button type="submit" disabled={busy} aria-label="Send">
             ↑
           </button>
         </form>

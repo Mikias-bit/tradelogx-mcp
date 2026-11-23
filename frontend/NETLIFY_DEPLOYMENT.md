@@ -50,7 +50,7 @@ Create `cors.json`, replacing the example origin with the actual production
 site origin:
 
 ```json
-[{"origin":["https://YOUR-SITE.netlify.app"],"method":["PUT"],"responseHeader":["Content-Type"],"maxAgeSeconds":3600}]
+[{"origin":["https://YOUR-SITE.netlify.app"],"method":["PUT"],"responseHeader":["Content-Type","x-goog-if-generation-match"],"maxAgeSeconds":3600}]
 ```
 
 Then apply it to the tenant bucket:
@@ -65,7 +65,7 @@ when applicable; avoid `*` in production.
 ## Deploy
 
 Push the project to GitHub and connect it to Netlify. If the repository root is
-the parent directory, set Netlify's base directory to `netlify-frontend`.
+the parent directory, set Netlify's base directory to `frontend` in the Netlify-connected `Mikias-bit/tradelogx-mcp` repository (the local publishing checkout is `tradelogx-mcp-publish/frontend`).
 Opening either function URL with GET should return HTTP 405:
 
 ```text
@@ -76,3 +76,18 @@ Opening either function URL with GET should return HTTP 405:
 Upload a small PDF in the UI and confirm that an object appears under
 `uploads/` in the configured bucket and that the returned case ID appears in
 the workspace header.
+
+## Case authorization and assistant rollout
+
+Deploy the current gateway, both regional MCP servers, and both workers with this
+frontend. The gateway now requires `X-User-ID` from authenticated Netlify Functions
+in addition to the private tenant credential. Every case has a server-side owner
+binding; older unowned cases are denied. Missing evidence is not a successful check.
+Failed cases expose refresh/retry actions. The old background orchestration request
+is no longer used: the worker owns processing.
+
+The explanation-only assistant uses `OPENAI_API_KEY`, `OPENAI_MODEL`, and
+`ENABLE_ASSISTANT=true` on the regional MCP servers. Do not place the OpenAI key in
+Netlify or the browser. See `CUSTOMER_READINESS.md` in the backend checkout for
+permissions, backend deployment, secret configuration, data-processing considerations,
+and two-account acceptance tests. Chat explicitly reports unavailable until configured.

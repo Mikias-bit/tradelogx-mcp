@@ -1,6 +1,7 @@
+import { createHash } from 'node:crypto'
 import { Storage } from '@google-cloud/storage'
 
-const jsonHeaders = { 'Content-Type': 'application/json' }
+const jsonHeaders = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
 
 export function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: jsonHeaders })
@@ -46,4 +47,19 @@ export function safeFilename(value) {
     .replace(/[^A-Za-z0-9._-]+/g, '_')
     .replace(/^\.+/, '')
     .slice(0, 180) || 'document'
+}
+
+export function ownerPrefix(tenantId, userId) {
+  if (typeof userId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(userId)) throw new Error('Invalid user identity')
+  return `uploads/${createHash('sha256').update(`${tenantId}:${userId}`).digest('hex')}/`
+}
+
+export function sameOrigin(request) {
+  return request.headers.get('origin') === new URL(request.url).origin
+}
+
+export function userHeaders(user, tenantId, tenantApiKey) {
+  ownerPrefix(tenantId, user.id)
+  return { 'Content-Type': 'application/json', 'X-Tenant-ID': tenantId,
+    'X-Tenant-API-Key': tenantApiKey, 'X-User-ID': user.id }
 }

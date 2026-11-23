@@ -26,7 +26,7 @@ export default function ReferencePanel({ mode, result, isSample, onOpenEvidence 
     onOpenEvidence({ title: String(row.name || row.rule_id), ruleId: String(row.rule_id),
       body: String(context.message || row.message || 'Recorded validation result'),
       severity: row.violated ? 'medium' : 'low', category: 'validation',
-      sources: row.document_key ? [String(row.document_key)] : [], evidence: context })
+      sources: row.document_key ? [String(row.document_key)] : [], evidence: { ...context, evaluation_status: row.evaluation_status || "NOT_VERIFIED" } })
   }
   if (mode === 'benchmarks') return (
     <div className="tab-panel reference-panel">
@@ -70,7 +70,7 @@ export default function ReferencePanel({ mode, result, isSample, onOpenEvidence 
         const matches = outcomes.filter((row) => row.rule_id === rule.id)
         const skippedMatches = skipped.filter((row) => row.rule_id === rule.id)
         const state = !matches.length ? (skippedMatches.length ? 'Skipped' : 'No execution recorded') :
-          matches.some((row) => row.violated) ? 'Review needed' : 'Evaluated — no finding'
+          matches.some((row) => row.violated) ? 'Review needed' : String(matches[0]?.evaluation_status || 'NOT_VERIFIED').replaceAll('_', ' ')
         return <article className="reference-rule" key={rule.id}>
           <h3>{rule.name}</h3><p>{rule.id} · {rule.suite} · {rule.severity}</p>
           {rule.documents.length ? <p>Required documents: {rule.documents.join(', ')}</p> : null}

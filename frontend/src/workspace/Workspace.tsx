@@ -11,19 +11,19 @@ import ReferencePanel from './ReferencePanel'
 import Topbar from './Topbar'
 import TransactionCard from './TransactionCard'
 import UploadModal from './UploadModal'
-import { documentRole, uploadAndSubmit, waitForCase, type ValidationAggregate } from './api'
+import { documentRole, uploadAndSubmit, waitForCase, retryCase, explainCase, type ConversationTurn, type CaseState, type ValidationAggregate } from './api'
 import {
   FINDINGS,
   SAMPLE_DOCUMENTS,
   type TabId,
   type Finding,
   type TradeDocument,
-  dedupeDocuments,
   formatSize,
   inferType,
 } from './data'
 import * as copy from './messages'
 import type { ThreadMessage } from './messages'
+import { useUserId } from '../auth/AuthGate'
 
 const BUILD_TITLE = 'Build a verified trade file'
 const BUILD_SUBTITLE =
@@ -35,7 +35,7 @@ interface SavedCaseView {
   transactionLabel: string
   pageTitle: string
   pageSubtitle: string
-  confidence: number
+  confidence: number | null
   criticalTotal: number
   preliminary: boolean
   validationResult?: ValidationAggregate
@@ -44,26 +44,6 @@ interface SavedCaseView {
 interface StagedFile {
   file: File
   documentType: string
-}
-
-function readSavedCase(): SavedCaseView | null {
-  try {
-    const value = window.localStorage.getItem(ACTIVE_CASE_STORAGE_KEY)
-    if (!value) return null
-    const parsed = JSON.parse(value) as SavedCaseView
-    parsed.documents = dedupeDocuments(parsed.documents).map((document) =>
-      document.confidence === 0 && document.status === 'issue'
-        ? { ...document, status: 'processing' as const }
-        : document,
-    )
-    return parsed
-  } catch {
-    return null
-  }
-}
-
-function persistCase(view: SavedCaseView) {
-  window.localStorage.setItem(ACTIVE_CASE_STORAGE_KEY, JSON.stringify(view))
 }
 
 const TABS: ReadonlyArray<[TabId, string]> = [
@@ -82,8 +62,8 @@ export default function Workspace() {
   const [findingFilter, setFindingFilter] = useState('all')
   const [activeChip, setActiveChip] = useState('all')
   const acknowledged = false
-  const [confidence, setConfidence] = useState(87)
-  const [criticalTotal, setCriticalTotal] = useState(1)
+  const [confidence, setConfidence] = useState<number | null>(null)
+  const [criticalTotal, setCriticalTotal] = useState(0)
   const [preliminary, setPreliminary] = useState(false)
   const [transactionLabel, setTransactionLabel] = useState('New verification')
   const [pageTitle, setPageTitle] = useState(BUILD_TITLE)
@@ -96,23 +76,37 @@ export default function Workspace() {
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null)
   const [toastText, setToastText] = useState('')
   const [toastShown, setToastShown] = useState(false)
-  const [savedCase, setSavedCase] = useState<SavedCaseView | null>(() => readSavedCase())
+  const [savedCase, setSavedCase] = useState<SavedCaseView | null>(null)
   const [showingSample, setShowingSample] = useState(false)
   const [stagedFiles, setStagedFiles] = useState<Array<StagedFile>>([])
   const [validationResult, setValidationResult] = useState<ValidationAggregate | undefined>(savedCase?.validationResult)
+
+  const userId = useUserId()
+  const storageKey = `tradelogx.case-id.v2.${userId}`
+  const [caseId, setCaseId] = useState(() => window.sessionStorage.getItem(storageKey) || '')
+  const [caseState, setCaseState] = useState<CaseState | 'IDLE'>('IDLE')
+  const [processingError, setProcessingError] = useState('')
+  const [working, setWorking] = useState(false)
+  const requestVersion = useRef(0)
+  const polling = useRef<AbortController | null>(null)
+  const conversation = useRef<ConversationTurn[]>([])
+  const chatBusy = useRef(false)
+  const [assistantBusy, setAssistantBusy] = useState(false)
+  useEffect(() => {
+    // Remove the old cross-account cache. Persist only an opaque per-user ID.
+    window.localStorage.removeItem(ACTIVE_CASE_STORAGE_KEY)
+    return () => { requestVersion.current++; polling.current?.abort() }
+  }, [])
+  useEffect(() => {
+    conversation.current = []
+    setMessages([{ id: ++messageId.current, ...copy.OPENING }])
+  }, [caseId, showingSample])
 
   const messageId = useRef(0)
   const nextId = () => ++messageId.current
   const [messages, setMessages] = useState<Array<ThreadMessage>>(() => [
     { id: nextId(), ...copy.OPENING },
   ])
-
-  // Every deferred effect is tracked so nothing fires after unmount.
-  const timers = useRef<Array<ReturnType<typeof setTimeout>>>([])
-  const later = useCallback((fn: () => void, ms: number) => {
-    timers.current.push(setTimeout(fn, ms))
-  }, [])
-  useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const toast = useCallback((message: string) => {
@@ -171,6 +165,10 @@ export default function Workspace() {
   }, [])
 
   const loadSample = useCallback(() => {
+    requestVersion.current++
+    polling.current?.abort()
+    setWorking(false)
+    setProcessingError('')
     setDocuments(SAMPLE_DOCUMENTS.map((d) => ({ ...d })))
     setTransactionLabel('TX-2026-0914')
     setPageTitle('Review shipment verification')
@@ -188,167 +186,128 @@ export default function Workspace() {
     toast('Sample shipment loaded · 46 checks complete')
   }, [say, toast])
 
-  const processFiles = useCallback(
-    async (files: ReadonlyArray<File>, stagedTypes?: ReadonlyArray<string>) => {
-      if (!files.length) return
-      setUploadOpen(false)
+  const applyResult = (id: string, aggregate: ValidationAggregate, sourceDocuments: TradeDocument[]) => {
+    const occurrences = new Map<string, number>()
+    const rows: TradeDocument[] = sourceDocuments.length ? sourceDocuments : Object.keys(aggregate.documents || {}).map(key => ({
+      name: key.replaceAll('_', ' '), type: key, pages: 0, confidence: null, status: 'unverified', size: '',
+    }))
+    const completedDocuments = rows.map(document => {
+      let role: string
+      try { role = documentRole(document.type) } catch { role = document.type }
+      const occurrence = (occurrences.get(role) || 0) + 1
+      occurrences.set(role, occurrence)
+      const uploadRole = occurrence === 1 ? role : `${role}_${occurrence}`
+      const result = aggregate.documents?.[aggregate.document_roles?.[uploadRole] || uploadRole]
+      return { ...document, confidence: null,
+        status: Number(result?.violation_count || 0) > 0 ? 'issue' as const : 'unverified' as const }
+    })
+    const score = typeof aggregate.shipment_score === 'number' && ['CHECKS_PASSED', 'REVIEW_REQUIRED'].includes(aggregate.verification_status || '') ? aggregate.shipment_score : null
+    const subtitle = `${Number(aggregate.violation_count || 0)} reported findings. ${Number(aggregate.unverified_rule_count || 0)} checks unverified or skipped. Review evidence before making a decision.`
+    const view: SavedCaseView = { documents: completedDocuments, transactionLabel: `Case ${id.slice(0, 8)}`,
+      pageTitle: 'Review processing results', pageSubtitle: subtitle, confidence: score,
+      criticalTotal: Number(aggregate.severity_counts?.critical || 0), preliminary: false, validationResult: aggregate }
+    setSavedCase(view)
+    setDocuments(completedDocuments)
+    setValidationResult(aggregate)
+    setConfidence(score)
+    setCriticalTotal(view.criticalTotal)
+    setPreliminary(false)
+    setPageTitle(view.pageTitle)
+    setPageSubtitle(subtitle)
+    setShowSuggestions(true)
+  }
 
-      const selectedFiles = Array.from(files).filter((file, index, all) =>
-        all.findIndex((candidate) =>
-          candidate.name.toLowerCase() === file.name.toLowerCase()
-          && candidate.size === file.size
-          && candidate.lastModified === file.lastModified
-        ) === index,
-      )
-      const documentTypes = stagedTypes
-        ? Array.from(stagedTypes)
-        : selectedFiles.map((file) =>
-            selectedType === 'Auto-detect' ? inferType(file.name) : selectedType,
-          )
-      const added: Array<TradeDocument> = selectedFiles.map((file, index) => ({
-        name: file.name,
-        type: documentTypes[index],
-        pages: 1,
-        confidence: 0,
-        status: 'processing',
-        size: formatSize(file.size),
-      }))
+  const monitor = async (id: string, rows: TradeDocument[], version: number) => {
+    polling.current?.abort()
+    const controller = new AbortController()
+    polling.current = controller
+    const completed = await waitForCase(id, state => {
+      if (requestVersion.current !== version) return
+      setCaseState(state)
+      setPageSubtitle(`Processing status: ${state.replaceAll('_', ' ').toLowerCase()}.`)
+    }, { signal: controller.signal })
+    if (requestVersion.current === version) applyResult(id, completed.result.results!, rows)
+  }
 
-      // Each upload creates a new backend case, so its document list replaces
-      // the previous case instead of being appended to stale UI rows.
-      const startIndex = 0
-      setDocuments(added)
-
-      setTransactionLabel('Draft verification')
-      setPageTitle('Verify uploaded trade file')
-      setPageSubtitle(
-        'Documents are organized by type. Add related files to unlock cross-document reconciliation.',
-      )
-      setActiveTab('overview')
-      setShowingSample(false)
-      say(copy.received(added.length, added.map((d) => d.type)))
-      toast(`${added.length} document${added.length > 1 ? 's' : ''} selected - uploading securely`)
-
-      let submittedCaseId = ''
-      try {
-        const submission = await uploadAndSubmit(selectedFiles, documentTypes)
-        setStagedFiles([])
-        const caseId = submission.result.case_id
-        submittedCaseId = caseId
-        setTransactionLabel(caseId ? `Case ${caseId.slice(0, 8)}` : 'Verification queued')
-        setPageSubtitle(
-          `Documents were uploaded to the ${submission.data_region.toUpperCase()} region and verification is running.`,
-        )
-        const processingView: SavedCaseView = {
-          documents: added.map((document) => ({ ...document })),
-          transactionLabel: caseId ? `Case ${caseId.slice(0, 8)}` : 'Verification queued',
-          pageTitle: 'Verify uploaded trade file',
-          pageSubtitle: `Documents were uploaded to the ${submission.data_region.toUpperCase()} region and verification is running.`,
-          confidence: 0,
-          criticalTotal: 0,
-          preliminary: true,
-        }
-        setSavedCase(processingView)
-        persistCase(processingView)
-        toast('Upload complete - verification queued')
-        say({
-          role: 'assistant',
-          body: (
-            <p>
-              Your documents were uploaded securely. Verification case {caseId} is now processing
-              in the {submission.data_region.toUpperCase()} region.
-            </p>
-          ),
-        })
-        const completed = await waitForCase(caseId, (state) => {
-          if (state === 'NORMALIZED') setPageSubtitle('Document extraction is complete. Preparing validation checks.')
-          if (state === 'PLANNED') setPageSubtitle('Validation checks are planned and ready to run.')
-          if (state === 'SUITES_RUNNING') setPageSubtitle('Validation checks are running.')
-        })
-        const aggregate = completed.result.results
-        setValidationResult(aggregate)
-        const violationCount = Number(aggregate?.violation_count || 0)
-        const shipmentScore = Math.round(Number(aggregate?.shipment_score ?? 100))
-        const criticalCount = Number(aggregate?.severity_counts?.critical || 0)
-        const documentResults = aggregate?.documents || {}
-        const roleOccurrences = new Map<string, number>()
-        const completedDocuments = added.map((document) => {
-          const role = documentRole(document.type)
-          const occurrence = (roleOccurrences.get(role) || 0) + 1
-          roleOccurrences.set(role, occurrence)
-          const documentKey = occurrence === 1 ? role : `${role}_${occurrence}`
-          const result = documentResults[documentKey]
-          const documentScore = Math.round(Number(result?.score ?? 100))
-          const documentViolations = Number(result?.violation_count || 0)
-          return {
-            ...document,
-            status: documentViolations > 0 ? 'issue' as const : 'verified' as const,
-            confidence: documentScore,
-          }
-        })
-        setDocuments((prev) => prev.map((doc, i) =>
-          i >= startIndex ? completedDocuments[i - startIndex] || doc : doc,
-        ))
-        setConfidence(shipmentScore)
-        setCriticalTotal(criticalCount)
-        setPreliminary(false)
-        setPageTitle(violationCount ? 'Review shipment verification' : 'Shipment verification complete')
-        setPageSubtitle(
-          violationCount
-            ? `${violationCount} discrepancy${violationCount === 1 ? '' : 'ies'} found. Review the results before release.`
-            : 'Verification completed with no discrepancies.',
-        )
-        setShowSuggestions(violationCount > 0)
-        const completedView: SavedCaseView = {
-          documents: completedDocuments,
-          transactionLabel: caseId ? `Case ${caseId.slice(0, 8)}` : 'Verification complete',
-          pageTitle: violationCount ? 'Review shipment verification' : 'Shipment verification complete',
-          pageSubtitle: violationCount
-            ? `${violationCount} discrepancy${violationCount === 1 ? '' : 'ies'} found. Review the results before release.`
-            : 'Verification completed with no discrepancies.',
-          confidence: shipmentScore,
-          criticalTotal: criticalCount,
-          preliminary: false,
-          validationResult: aggregate,
-        }
-        setSavedCase(completedView)
-        persistCase(completedView)
-        toast(`Verification complete - ${violationCount} finding${violationCount === 1 ? '' : 's'}`)
-        say({
-          role: 'assistant',
-          body: <p>Verification is complete with {violationCount} finding{violationCount === 1 ? '' : 's'} and a score of {shipmentScore}%.</p>,
-        })
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Upload failed'
-        if (!submittedCaseId) {
-          setDocuments((prev) =>
-            prev.map((doc, i) =>
-              i >= startIndex ? { ...doc, status: 'issue' as const, confidence: 0 } : doc,
-            ),
-          )
-          setConfidence(0)
-          setCriticalTotal(1)
-          setPreliminary(true)
-        }
-        toast(message)
-        say({
-          role: 'assistant',
-          body: submittedCaseId
-            ? <p>Case {submittedCaseId} was created, but live status stopped: {message}</p>
-            : <p>I could not submit these documents: {message}</p>,
-        })
+  const refreshCase = async (retry = false) => {
+    if (!caseId || working || showingSample) return
+    const version = ++requestVersion.current
+    setWorking(true)
+    setProcessingError('')
+    try {
+      let id = caseId
+      if (retry) {
+        const response = await retryCase(id)
+        id = response.result.case_id
+        setCaseId(id)
+        window.sessionStorage.setItem(storageKey, id)
+        setValidationResult(undefined)
+        setConfidence(null)
+        setPreliminary(true)
       }
-    },
-    [selectedType, say, toast],
-  )
+      setTransactionLabel(`Case ${id.slice(0, 8)}`)
+      await monitor(id, documents, version)
+    } catch (error) {
+      if (requestVersion.current === version) setProcessingError(error instanceof Error ? error.message : 'Status unavailable. Try refreshing status.')
+    } finally {
+      if (requestVersion.current === version) setWorking(false)
+    }
+  }
+
+  useEffect(() => {
+    if (caseId) void refreshCase()
+    // Restore only the current user's case ID; fetch all contents after authorization.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const processFiles = useCallback(async (files: ReadonlyArray<File>, stagedTypes?: ReadonlyArray<string>) => {
+    if (!files.length || working) return
+    const version = ++requestVersion.current
+    polling.current?.abort()
+    setWorking(true)
+    setUploadOpen(false)
+    setProcessingError('')
+    setCaseId('')
+    window.sessionStorage.removeItem(storageKey)
+    setCaseState('IDLE')
+    setValidationResult(undefined)
+    setSavedCase(null)
+    setConfidence(null)
+    setCriticalTotal(0)
+    setPreliminary(true)
+    setShowingSample(false)
+    const selectedFiles = Array.from(files)
+    const documentTypes = stagedTypes ? Array.from(stagedTypes) : selectedFiles.map(file => selectedType === 'Auto-detect' ? inferType(file.name) : selectedType)
+    const added: TradeDocument[] = selectedFiles.map((file, index) => ({ name: file.name, type: documentTypes[index], pages: 0, confidence: null, status: 'processing', size: formatSize(file.size) }))
+    setDocuments(added)
+    setPageTitle('Processing trade file')
+    setPageSubtitle('Uploading documents securely.')
+    setActiveTab('overview')
+    try {
+      const submission = await uploadAndSubmit(selectedFiles, documentTypes)
+      if (requestVersion.current !== version) return
+      const id = submission.result.case_id
+      setCaseId(id)
+      window.sessionStorage.setItem(storageKey, id)
+      setStagedFiles([])
+      setTransactionLabel(`Case ${id.slice(0, 8)}`)
+      await monitor(id, added, version)
+    } catch (error) {
+      if (requestVersion.current !== version) return
+      setProcessingError(error instanceof Error ? error.message : 'Processing failed. Try again.')
+      setDocuments(prev => prev.map(doc => ({ ...doc, status: 'unverified', confidence: null })))
+    } finally {
+      if (requestVersion.current === version) setWorking(false)
+    }
+  }, [selectedType, working, storageKey])
 
   const stageFiles = useCallback((files: FileList) => {
     const selected = Array.from(files).map((file) => ({
       file,
       documentType: selectedType === 'Auto-detect' ? inferType(file.name) : selectedType,
     }))
-    setStagedFiles((previous) => {
-      const combined = [...previous]
+    {
+      const combined = [...stagedFiles]
       for (const candidate of selected) {
         const duplicate = combined.some(({ file }) =>
           file.name.toLowerCase() === candidate.file.name.toLowerCase()
@@ -357,11 +316,21 @@ export default function Workspace() {
         )
         if (!duplicate) combined.push(candidate)
       }
+      requestVersion.current++
+      polling.current?.abort()
+      setWorking(false)
+      setCaseId('')
+      setSavedCase(null)
+      setCaseState('IDLE')
+      setProcessingError('')
+      setConfidence(null)
+      setPreliminary(true)
+      window.sessionStorage.removeItem(storageKey)
       setDocuments(combined.map(({ file, documentType }) => ({
         name: file.name,
         type: documentType,
-        pages: 1,
-        confidence: 0,
+        pages: 0,
+        confidence: null,
         status: 'processing' as const,
         size: formatSize(file.size),
       })))
@@ -372,10 +341,10 @@ export default function Workspace() {
       setValidationResult(undefined)
       setActiveTab('documents')
       toast(`${combined.length} document${combined.length === 1 ? '' : 's'} ready for this case`)
-      return combined
-    })
+      setStagedFiles(combined)
+    }
     setUploadOpen(false)
-  }, [selectedType, toast])
+  }, [selectedType, toast, storageKey, stagedFiles])
 
   const submitStagedFiles = useCallback(() => {
     if (!stagedFiles.length) return
@@ -391,6 +360,14 @@ export default function Workspace() {
   }, [])
 
   const newCheck = useCallback(() => {
+    requestVersion.current++
+    polling.current?.abort()
+    setWorking(false)
+    setCaseId('')
+    setCaseState('IDLE')
+    setProcessingError('')
+    setConfidence(null)
+    window.sessionStorage.removeItem(storageKey)
     if (documents.length) {
       setDocuments([])
       setStagedFiles([])
@@ -403,7 +380,7 @@ export default function Workspace() {
     } else {
       openUpload()
     }
-  }, [documents.length, openUpload, toast])
+  }, [documents.length, openUpload, toast, storageKey])
 
   const openEvidence = useCallback((finding: Finding) => {
     setSelectedFinding(finding)
@@ -418,24 +395,31 @@ export default function Workspace() {
     [loadSample, say],
   )
 
-  const onSend = useCallback(
-    (text: string) => {
-      ask(text)
-      later(() => say(copy.replyTo(text)), 450)
-    },
-    [ask, later, say],
-  )
-
-  const onSuggestion = useCallback(
-    (text: string) => {
-      ask(text)
-      later(
-        () => say(text.includes('high') ? copy.HIGH_ISSUE_DETAIL : copy.REVIEW_CHECKLIST),
-        350,
-      )
-    },
-    [ask, later, say],
-  )
+  const onSend = async (text: string) => {
+    if (chatBusy.current) return
+    ask(text)
+    if (showingSample || !caseId) {
+      say({ role: 'assistant', body: <p>Select a real case to ask the conversational assistant about its evidence. Sample results are demonstrations.</p> })
+      return
+    }
+    const version = requestVersion.current
+    chatBusy.current = true
+    setAssistantBusy(true)
+    try {
+      const { result } = await explainCase(caseId, text, conversation.current)
+      if (version !== requestVersion.current) return
+      say({ role: 'assistant', body: <><p style={{ whiteSpace: 'pre-wrap' }}>{result.answer}</p>
+        {result.citations.map(cite => <p key={cite.id}>[{cite.id}] {cite.rule_id}: {cite.status.replaceAll('_', ' ')}</p>)}
+        <small>Explanation only. Findings remain unchanged.</small></> })
+      if (result.available) conversation.current = [...conversation.current, { role: 'user', content: text }, { role: 'assistant', content: result.answer }].slice(-6) as ConversationTurn[]
+    } catch (error) {
+      if (version === requestVersion.current) say({ role: 'assistant', body: <p>{error instanceof Error ? error.message : 'Assistant unavailable. Please try again.'}</p> })
+    } finally {
+      chatBusy.current = false
+      setAssistantBusy(false)
+    }
+  }
+  const onSuggestion = onSend
 
   const loaded = documents.length > 0
 
@@ -483,16 +467,23 @@ export default function Workspace() {
                     </svg>
                     {showingSample && savedCase ? 'Return to active case' : 'Load sample file'}
                   </button>
-                  <button className="primary" onClick={openUpload}>
+                  <button className="primary" disabled={working} onClick={openUpload}>
                     ＋ Add documents
                   </button>
                   {stagedFiles.length ? (
-                    <button className="primary" onClick={submitStagedFiles}>
+                    <button className="primary" disabled={working} onClick={submitStagedFiles}>
                       Start verification ({stagedFiles.length})
                     </button>
                   ) : null}
                 </div>
               </div>
+
+              {caseId && !showingSample ? <div className="case-status" role="status">
+                <p>Case {caseId} ? {caseState.replaceAll('_', ' ')}</p>
+                {processingError ? <p role="alert">{processingError}</p> : null}
+                <button className="secondary" disabled={working} onClick={() => void refreshCase()}>Refresh status</button>
+                {['FAILED', 'TIMED_OUT'].includes(caseState) ? <button className="primary" disabled={working} onClick={() => void refreshCase(true)}>Retry as new case</button> : null}
+              </div> : processingError ? <p role="alert">{processingError} Select the files and start verification again.</p> : null}
 
               {!loaded && (activeTab === 'rules' || activeTab === 'benchmarks') ? (
                 <ReferencePanel mode={activeTab} result={validationResult} isSample={showingSample} onOpenEvidence={openEvidence} />
@@ -515,13 +506,7 @@ export default function Workspace() {
                     confidence={confidence}
                     acknowledged={acknowledged}
                     isSample={showingSample}
-                    statusLabel={showingSample
-                      ? undefined
-                      : preliminary
-                        ? 'Processing'
-                        : criticalTotal > 0
-                          ? 'Review needed'
-                          : 'Verified'}
+                    statusLabel={showingSample ? 'Sample ? review needed' : ['FAILED', 'TIMED_OUT'].includes(caseState) ? 'Processing failed' : preliminary ? 'Not yet verified' : 'Review evidence'}
                   />
 
                   <div className="tabs" role="tablist">
@@ -558,10 +543,7 @@ export default function Workspace() {
                         setFindingFilter(filter)
                         setActiveTab('findings')
                       }}
-                      onRunAgain={() => {
-                        toast('Re-running 46 verification checks…')
-                        later(() => toast('Verification complete · results are unchanged'), 1200)
-                      }}
+                      onRunAgain={() => { if (!showingSample) void refreshCase() }}
                       onAddMore={openUpload}
                     />
                   ) : null}
@@ -573,7 +555,7 @@ export default function Workspace() {
                   {activeTab === 'findings' ? (
                     <FindingsPanel
                       isSample={showingSample}
-                      violations={validationResult?.violations || []}
+                      violations={(validationResult?.outcomes || validationResult?.violations || []).filter(row => row.evaluation_status !== 'PASSED' && row.evaluation_status !== 'NOT_APPLICABLE')}
                       filter={findingFilter}
                       activeChip={activeChip}
                       onChangeSeverity={(severity) => {
@@ -589,7 +571,15 @@ export default function Workspace() {
                       isSample={showingSample}
                       result={validationResult}
                       documentCount={documents.length}
-                      onExport={() => toast('Audit log prepared for export')}
+                      onExport={() => {
+                        if (!validationResult || showingSample) { toast('No live result to export'); return }
+                        const url = URL.createObjectURL(new Blob([JSON.stringify({ case_id: caseId, results: validationResult }, null, 2)], { type: 'application/json' }))
+                        const link = document.createElement('a')
+                        link.href = url
+                        link.download = `tradelogx-${caseId}.json`
+                        link.click()
+                        URL.revokeObjectURL(url)
+                      }}
                     />
                   ) : null}
                 </div>
@@ -597,6 +587,7 @@ export default function Workspace() {
             </section>
 
             <AssistantPanel
+              busy={assistantBusy}
               open={assistantOpen}
               messages={messages}
               showSuggestions={showSuggestions}
@@ -626,7 +617,7 @@ export default function Workspace() {
         type="file"
         ref={fileInput}
         multiple
-        accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx,.xls"
+        accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.webp"
         hidden
         onChange={(event) => {
           if (event.target.files) stageFiles(event.target.files)

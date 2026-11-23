@@ -1,5 +1,8 @@
 import { getUser, handleAuthCallback, login, logout, acceptInvite, updateUser } from '@netlify/identity'
-import { type FormEvent, type ReactNode, useEffect, useState, useRef } from 'react'
+import { type FormEvent, type ReactNode, useEffect, useState, useRef, createContext, useContext } from 'react'
+
+const UserContext = createContext('')
+export const useUserId = () => useContext(UserContext)
 
 type Mode = 'login' | 'invite' | 'recovery'
 type CurrentUser = Awaited<ReturnType<typeof getUser>>
@@ -131,7 +134,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
           Sign out
         </button>
       </div>
-      {children}
+      <UserContext.Provider key={user.id} value={user.id}>{children}</UserContext.Provider>
     </>
   )
 }

@@ -28,14 +28,14 @@ export default function OverviewPanel({
 }: OverviewPanelProps) {
   const violationCount = isSample ? FINDINGS.length : Number(result?.violation_count || 0)
   const evaluatedCount = isSample ? 46 : Number(result?.evaluated_rule_count || 0)
-  const passedCount = Math.max(0, evaluatedCount - violationCount)
+  const passedCount = isSample ? Math.max(0, evaluatedCount - violationCount) : Number(result?.passed_rule_count || 0)
   const skippedCount = isSample ? 4 : Number(result?.skipped_rule_count || 0)
   const crossCount = isSample
     ? 2
     : Number(result?.cross_validation?.violations?.length || 0)
   const cards = isSample ? CHECK_CARDS : [
-    { filter: 'all', tone: crossCount ? 'amber' : 'green', glyph: '⇄', label: 'Cross-document', value: `${crossCount} finding${crossCount === 1 ? '' : 's'}`, note: `${result?.cross_validation?.outcomes?.length || 0} checks evaluated` },
-    { filter: 'all', tone: violationCount ? 'amber' : 'green', glyph: '✓', label: 'Validation rules', value: `${passedCount} passed`, note: `${evaluatedCount} evaluated` },
+    { filter: 'all', tone: 'blue', glyph: '⇄', label: 'Cross-document', value: `${crossCount} finding${crossCount === 1 ? '' : 's'}`, note: `${result?.cross_validation?.outcomes?.length || 0} checks evaluated` },
+    { filter: 'all', tone: 'blue', glyph: '✓', label: 'Validation rules', value: `${passedCount} passed`, note: `${evaluatedCount} evaluated; ${Number(result?.unverified_rule_count || 0)} unverified/skipped` },
     { filter: 'all', tone: skippedCount ? 'blue' : 'green', glyph: '−', label: 'Skipped rules', value: `${skippedCount} skipped`, note: `${result?.rule_suites?.length || 0} rule suites` },
   ] as const
   return (
@@ -47,7 +47,7 @@ export default function OverviewPanel({
             <small>Requires attention</small>
             <strong>
               {preliminary ? (
-                'No high-severity issues'
+                'Results not yet available'
               ) : (
                 <>
                   <span>{criticalTotal}</span> high-severity issue{criticalTotal === 1 ? '' : 's'}
@@ -56,7 +56,7 @@ export default function OverviewPanel({
             </strong>
             <p>
               {preliminary
-                ? 'Add related documents for deeper reconciliation.'
+                ? 'Processing has not produced a complete result.'
                 : isSample
                   ? 'Commercial value differs across two documents.'
                   : `${violationCount} total validation finding${violationCount === 1 ? '' : 's'}.`}
@@ -88,12 +88,12 @@ export default function OverviewPanel({
           <p>Grouped by decision, so the full evidence stays readable.</p>
         </div>
         <button className="quiet-button" onClick={onRunAgain}>
-          ↻ Run again
+          ↻ Refresh status
         </button>
       </div>
       <div className="verification-grid">
         {cards.map((card) => (
-          <button key={card.filter} className="check-card" onClick={() => onFilterChecks(card.filter)}>
+          <button key={card.label} className="check-card" onClick={() => onFilterChecks(card.filter)}>
             <span className={`check-icon ${card.tone}`}>{card.glyph}</span>
             <span>
               <small>{card.label}</small>
@@ -109,7 +109,7 @@ export default function OverviewPanel({
         <div>
           <h2>Trade file</h2>
           <p>
-            {documents.length} document{documents.length === 1 ? '' : 's'} classified and extracted
+            {documents.length} document{documents.length === 1 ? '' : 's'} in this file
           </p>
         </div>
         <button className="quiet-button" onClick={onAddMore}>

@@ -18,11 +18,15 @@ export interface SubmissionResponse {
   result: { case_id: string; [key: string]: unknown }
 }
 
-export type CaseState = 'SUBMITTED' | 'NORMALIZED' | 'PLANNED' | 'SUITES_RUNNING' | 'COMPLETE'
+export type CaseState = 'SUBMITTED' | 'NORMALIZED' | 'PLANNED' | 'SUITES_RUNNING' | 'COMPLETE' | 'RUNNING' | 'FAILED' | 'TIMED_OUT'
 
 export interface ValidationAggregate {
   violation_count?: number
-  shipment_score?: number
+  verification_status?: string
+  passed_rule_count?: number
+  unverified_rule_count?: number
+  outcomes?: Array<Record<string, unknown>>
+  shipment_score?: number | null
   requested_rule_count?: number
   evaluated_rule_count?: number
   skipped_rule_count?: number
@@ -34,8 +38,9 @@ export interface ValidationAggregate {
     outcomes?: Array<Record<string, unknown>>
     [key: string]: unknown
   }
+  document_roles?: Record<string, string>
   documents?: Record<string, {
-    score?: number
+    score?: number | null
     violation_count?: number
     [key: string]: unknown
   }>
@@ -118,7 +123,7 @@ export async function uploadAndSubmit(
   await Promise.all(uploads.map(async (upload, index) => {
     const response = await fetch(upload.uploadUrl, {
       method: 'PUT',
-      headers: { 'Content-Type': upload.contentType },
+      headers: { 'Content-Type': upload.contentType, 'x-goog-if-generation-match': '0' },
       body: files[index],
     })
     if (!response.ok) throw new Error(`Upload failed for ${upload.filename} (${response.status})`)
@@ -143,15 +148,6 @@ export async function uploadAndSubmit(
     })() }),
   })
   const submission = await responseJson<SubmissionResponse>(submitResponse)
-  const orchestrationResponse = await authenticatedFetch('/.netlify/functions/orchestrate-case-background', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ case_id: submission.result.case_id }),
-  })
-  if (!orchestrationResponse.ok) {
-    const body = await orchestrationResponse.json().catch(() => ({})) as { error?: string }
-    throw new Error(body.error || `Unable to start verification (${orchestrationResponse.status})`)
-  }
   return submission
 }
 
@@ -166,18 +162,40 @@ export async function getCaseStatus(caseId: string): Promise<CaseStatusResponse>
 export async function waitForCase(
   caseId: string,
   onState?: (state: CaseState) => void,
-  options: { intervalMs?: number; timeoutMs?: number } = {},
+  options: { intervalMs?: number; timeoutMs?: number; signal?: AbortSignal } = {},
 ): Promise<CaseStatusResponse> {
   const intervalMs = options.intervalMs ?? 3000
   const timeoutMs = options.timeoutMs ?? 15 * 60 * 1000
   const deadline = Date.now() + timeoutMs
   while (true) {
+    options.signal?.throwIfAborted()
     const response = await getCaseStatus(caseId)
+    options.signal?.throwIfAborted()
     onState?.(response.result.state)
-    if (response.result.state === 'COMPLETE') return response
+    if (['FAILED', 'TIMED_OUT'].includes(response.result.state)) throw new Error('Processing failed or timed out. Retry this case to start a new attempt.')
+    if (response.result.state === 'COMPLETE') {
+      if (!response.result.results) throw new Error('Results are unavailable. Check status again.')
+      return response
+    }
     if (Date.now() >= deadline) {
       throw new Error(`Verification for case ${caseId} is still running; check it again later`)
     }
     await new Promise((resolve) => window.setTimeout(resolve, intervalMs))
   }
+}
+
+export async function retryCase(caseId: string): Promise<SubmissionResponse> {
+  return responseJson<SubmissionResponse>(await authenticatedFetch('/.netlify/functions/retry-case', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ case_id: caseId }),
+  }))
+}
+
+export type ConversationTurn = { role: 'user' | 'assistant'; content: string }
+export async function explainCase(caseId: string, message: string, history: ConversationTurn[]) {
+  return responseJson<{ result: { answer: string; available: boolean; citations: Array<{ id: string; rule_id: string; status: string }> } }>(
+    await authenticatedFetch('/.netlify/functions/case-chat', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ case_id: caseId, message, history: history.slice(-6).map(row => ({ ...row, content: row.content.slice(0, 2000) })) }),
+    }),
+  )
 }

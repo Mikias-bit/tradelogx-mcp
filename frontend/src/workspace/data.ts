@@ -7,14 +7,14 @@
  */
 
 export type Severity = 'high' | 'medium' | 'low'
-export type DocStatus = 'verified' | 'issue' | 'processing'
+export type DocStatus = 'verified' | 'issue' | 'processing' | 'unverified' | 'failed'
 export type TabId = 'overview' | 'documents' | 'findings' | 'audit' | 'benchmarks' | 'rules'
 
 export interface TradeDocument {
   name: string
   type: string
   pages: number
-  confidence: number
+  confidence: number | null
   status: DocStatus
   size: string
 }
@@ -196,12 +196,14 @@ export function formatSize(bytes: number): string {
 
 /** Shared label helpers, so panels agree on wording. */
 export const statusLabel = (status: DocStatus): string =>
+  status === 'unverified' ? 'Not verified' : status === 'failed' ? 'Processing failed' :
   status === 'processing' ? 'Extracting' : status === 'issue' ? 'Review' : 'Verified'
 
 export const statusClass = (status: DocStatus): string =>
+  status === 'unverified' || status === 'failed' ? 'issue' :
   status === 'processing' ? 'processing' : status === 'issue' ? 'issue' : ''
 
-export const pageLabel = (pages: number): string => `${pages} page${pages > 1 ? 's' : ''}`
+export const pageLabel = (pages: number): string => pages <= 0 ? 'Page count unavailable' : `${pages} page${pages > 1 ? 's' : ''}`
 
 export const extensionOf = (name: string): string =>
   (name.split('.').pop() || '').toUpperCase()

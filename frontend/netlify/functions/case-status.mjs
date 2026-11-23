@@ -1,5 +1,6 @@
 import { getUser } from '@netlify/identity'
 import { json, methodNotAllowed, tenantConfig } from './_shared.mjs'
+import { ownerPrefix, sameOrigin, userHeaders } from './_shared.mjs'
 
 const CASE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
@@ -16,10 +17,7 @@ export default async (request) => {
 
     const { backendUrl, tenantId, tenantApiKey } = tenantConfig()
     const response = await fetch(`${backendUrl}/v1/cases/${encodeURIComponent(caseId)}`, {
-      headers: {
-        'X-Tenant-ID': tenantId,
-        'X-Tenant-API-Key': tenantApiKey,
-      },
+      headers: userHeaders(user, tenantId, tenantApiKey),
     })
     const text = await response.text()
     return new Response(text, {

@@ -2,7 +2,7 @@ interface TransactionCardProps {
   txId: string
   title: string
   meta: string
-  confidence: number
+  confidence: number | null
   acknowledged: boolean
   isSample?: boolean
   statusLabel?: string
@@ -35,10 +35,10 @@ export default function TransactionCard({
         </div>
       </div>
       <div className="score-block">
-        <small>File confidence</small>
-        <strong>{confidence}%</strong>
+        <small>{isSample ? "Sample confidence" : "Rule score"}</small>
+        <strong>{confidence === null ? "Not available" : `${confidence ?? 0}%`}</strong>
         <div className="score-bar">
-          <i style={{ width: `${confidence}%` }} />
+          <i style={{ width: `${confidence ?? 0}%` }} />
         </div>
       </div>
     </div>
