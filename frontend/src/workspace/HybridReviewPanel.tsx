@@ -1,8 +1,10 @@
+import WorkflowPanel from './WorkflowPanel'
 import type { ValidationAggregate } from './api'
 export default function HybridReviewPanel({ result, isSample = false }: { result?: ValidationAggregate; isSample?: boolean }) {
   const review = isSample ? undefined : result?.hybrid_review
-  if (!review) return <section><h2>Supplemental AI review</h2><p>No AI review is recorded for this case. New verifications can include it when enabled; saved results are not automatically recalculated.</p></section>
+  if (!review) return <section><WorkflowPanel result={isSample ? undefined : result} /><h2>Supplemental AI review</h2><p>No AI review is recorded for this case. New verifications can include it when enabled; saved results are not automatically recalculated.</p></section>
   return <section className="hybrid-review">
+    <WorkflowPanel result={result} />
     <h2>Supplemental AI review</h2>
     <p><strong>{review.status.replaceAll('_', ' ')}</strong></p>
     <p>These interpretations require human review. They do not change extracted facts, rule conclusions, benchmark results, or evidence coverage.</p>

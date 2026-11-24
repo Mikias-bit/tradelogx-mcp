@@ -10,7 +10,7 @@ function component(name) {
   const source = readFileSync(new URL(`../src/workspace/${name}.tsx`, import.meta.url), 'utf8')
   const output = ts.transpileModule(source, { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
   const exports = {}
-  new Function('require', 'exports', output)(require, exports)
+  new Function('require', 'exports', output)(name => name.startsWith('./') ? { default: component(name.slice(2)) } : require(name), exports)
   return exports.default
 }
 const Summary = component('EvidenceSummaryPanel')
@@ -43,4 +43,19 @@ test('AI interpretations remain review proposals and their cited evidence is acc
 test('old cases do not gain invented AI reviews', () => {
   const html = renderToStaticMarkup(React.createElement(Review, { result: {} }))
   assert.match(html, /No AI review is recorded/)
+})
+
+const Workflow = component('WorkflowPanel')
+test('workflow shows approved plans, grounded context and source limitations', () => {
+  const html = renderToStaticMarkup(React.createElement(Workflow, { result: {
+    ai_workflow: { data_region: 'eu', initial_proposal: { status: 'PROPOSED' }, status: 'NO_ADDITIONAL_SUITES_REQUESTED',
+      events: ['SERVER_PLAN_VALIDATED', 'REGIONAL_MCP_CHECKS_EXECUTED'],
+      shipment_context: [{ kind: 'goods', quote: 'Fresh lychees', document_key: 'invoice', field: 'product', evidence_id: 'S1' }],
+      plan_history: [{ plan_id: 'plan-1', suites: ['general', 'perishable'] }], planning_decision: {} },
+    validation_plan: { standard_resource_keys: ['ippc.ispm12'] },
+  } }))
+  assert.match(html, /Fresh lychees/)
+  assert.match(html, /general, perishable/)
+  assert.match(html, /SERVER PLAN VALIDATED/)
+  assert.match(html, /References alone do not establish/)
 })

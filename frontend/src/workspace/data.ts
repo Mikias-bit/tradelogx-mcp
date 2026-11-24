@@ -114,7 +114,7 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
-  { id: 'hybrid', glyph: '+', label: 'AI review' },
+  { id: 'hybrid', glyph: '+', label: 'AI workflow' },
   { id: 'cases', glyph: 'C', label: 'My cases' },
   { id: 'checks', glyph: '+', label: 'Checks and coverage' },
   { id: 'workspace', glyph: '⌁', label: 'Workspace' },

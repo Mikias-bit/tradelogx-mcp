@@ -52,7 +52,7 @@ interface StagedFile {
 const TABS: ReadonlyArray<[TabId, string]> = [
   ['overview', 'Overview'],
   ['checks', 'Checks and coverage'],
-  ['hybrid', 'AI review'],
+  ['hybrid', 'AI workflow'],
   ['documents', 'Documents'],
   ['findings', 'Findings'],
   ['audit', 'Audit trail'],
