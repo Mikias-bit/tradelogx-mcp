@@ -1,4 +1,4 @@
-import { getUser, handleAuthCallback, login, logout, acceptInvite, updateUser } from '@netlify/identity'
+import { getUser, handleAuthCallback, login, acceptInvite, updateUser } from '@netlify/identity'
 import { type FormEvent, type ReactNode, useEffect, useState, useRef, createContext, useContext } from 'react'
 
 const UserContext = createContext('')
@@ -125,15 +125,6 @@ export default function AuthGate({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <div className="auth-session">
-        <span>{user.email}</span>
-        <button
-          type="button"
-          onClick={() => void logout().then(() => setUser(null))}
-        >
-          Sign out
-        </button>
-      </div>
       <UserContext.Provider key={user.id} value={user.id}>{children}</UserContext.Provider>
     </>
   )
