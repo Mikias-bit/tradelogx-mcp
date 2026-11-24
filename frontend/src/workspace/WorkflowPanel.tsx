@@ -1,3 +1,4 @@
+import GovernedReportPanel from './GovernedReportPanel'
 import type { ValidationAggregate } from './api'
 const record = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
 const list = (value: unknown): unknown[] => Array.isArray(value) ? value : []
@@ -12,7 +13,7 @@ export default function WorkflowPanel({ result }: { result?: ValidationAggregate
   const proposals = [record(initial.proposal), record(assessment.proposal)]
   const questions = [...new Set(proposals.flatMap(row => list(row.questions).filter((value): value is string => typeof value === 'string')))]
   return <section className="check-detail">
-    <h2>Shipment context and verification workflow</h2>
+    <h2>Shipment context and verification workflow</h2><GovernedReportPanel result={result} />
     <p>Execution region: <strong>{text(workflow.data_region).toUpperCase()}</strong>. Rules and benchmarks remain authoritative; AI selects candidate checks subject to server validation.</p>
     <p>Initial AI proposal: <strong>{text(initial.status).replaceAll('_', ' ')}</strong>. {text(initial.reason)}</p>
     <ol>{list(workflow.events).map((event, index) => <li key={index}>{text(event).replaceAll('_', ' ')}</li>)}</ol>

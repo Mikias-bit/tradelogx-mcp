@@ -1,3 +1,4 @@
+import GovernedReportPanel from './GovernedReportPanel'
 import EvidenceSummaryPanel from './EvidenceSummaryPanel'
 import type { ValidationAggregate } from './api'
 const record = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
@@ -14,7 +15,7 @@ export default function ChecksPanel({ result, isSample }: { result?: ValidationA
   return <section className="checks-panel">
     <h2>Checks and coverage</h2><p>These are the checks recorded for this case. Missing evidence does not establish verification.</p>
     <p>{result.evaluated_rule_count ?? 0} rules evaluated; {result.skipped_rule_count ?? 0} skipped. Overall: {text(result.verification_status)}.</p>
-    <EvidenceSummaryPanel result={result} />
+    <EvidenceSummaryPanel result={result} /><GovernedReportPanel result={result} />
     <h3>GLEIF / entity verification</h3>
     <Evidence value={entity.verification_summary || { status: 'No capability summary recorded' }} />
     <p>Registry matches concern legal identity. An absent match does not establish fraud; an identifier format check does not confirm registration.</p>
